@@ -1,6 +1,5 @@
-import React from 'react';
-import { Search, Phone } from 'lucide-react';
-import logo from "../../assets/logo.png"
+import { Phone } from 'lucide-react';
+import logo from "../../assets/logo.png";
 
 function NavBar() {
   return (
@@ -16,16 +15,19 @@ function NavBar() {
           <a href="/" className="text-black hover:text-yellow-600 transition-colors font-medium">
             Home
           </a>
-          <a href="/room" className="text-black hover:text-yellow-600 transition-colors font-medium">
+          <a href="/aboutus" className="text-black hover:text-yellow-600 transition-colors font-medium">
             About
           </a>
-          <a href="/aboutus" className="text-black hover:text-yellow-600 transition-colors font-medium">
+           <a href="/marketprice" className="text-black hover:text-yellow-600 transition-colors font-medium">
+            Market Price
+          </a>
+          <a href="/report" className="text-black hover:text-yellow-600 transition-colors font-medium">
             Report
           </a>
-          <a href="/service" className="text-black hover:text-yellow-600 transition-colors font-medium">
-            FQA
+          <a href="/faq" className="text-black hover:text-yellow-600 transition-colors font-medium">
+            FAQ
           </a>
-          <a href="/contact" className="text-black hover:text-yellow-600 transition-colors font-medium">
+          <a href="/feedback" className="text-black hover:text-yellow-600 transition-colors font-medium">
             Feedback
           </a>
           <a href="/contact" className="text-black hover:text-yellow-600 transition-colors font-medium">
