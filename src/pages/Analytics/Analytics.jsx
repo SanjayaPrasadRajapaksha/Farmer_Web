@@ -576,12 +576,12 @@ function AnalyticsFilters({
   selectedProductName,
   productSearchNeedle,
 }) {
-  let productHint = "Selected: All products";
+  let productHint = "Please select a product";
   if (selectedProductId) {
     const selectedLabel = selectedProductName || `#${selectedProductId}`;
     productHint = `Selected: ${selectedLabel}`;
   } else if (productSearchNeedle) {
-    productHint = `Filtered by: “${productSearchNeedle}”`;
+    productHint = "Please select a product from the suggestions";
   }
 
   return (
@@ -611,7 +611,7 @@ function AnalyticsFilters({
             id="analytics-product"
             list="analytics-product-list"
             className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none"
-            placeholder="All products"
+            placeholder="Select a product"
             value={productSearch}
             onChange={(e) => onProductSearchChange(e.target.value)}
           />
@@ -1062,7 +1062,11 @@ function Analytics() {
             weeklySeries={weeklySeries}
             monthlySeries={monthlySeries}
           />
-        ) : null}
+        ) : (
+          <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-700">
+            Please select a product to view charts.
+          </div>
+        )}
       </AnalyticsMain>
     </div>
   );
