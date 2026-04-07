@@ -229,7 +229,6 @@ function MarketPrice() {
   if (error) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold text-gray-900">Market Prices</h1>
         <p className="mt-3 text-sm text-red-600">{error}</p>
         <p className="mt-2 text-sm text-gray-600">Make sure the backend is running at {API_BASE_URL}.</p>
       </div>
@@ -238,11 +237,6 @@ function MarketPrice() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Market Prices</h1>
-        <p className="mt-2 text-sm text-gray-600">Filter by date, category, or product name.</p>
-      </div>
-
       <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
