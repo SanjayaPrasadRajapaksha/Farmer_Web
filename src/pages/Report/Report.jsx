@@ -61,6 +61,17 @@ function Report() {
     return map;
   }, [categories]);
 
+  const sortedCategories = useMemo(() => {
+    const isVegetable = (category) => String(category?.name ?? "").toLowerCase().includes("veget");
+
+    return [...categories].sort((a, b) => {
+      const aRank = isVegetable(a) ? 0 : 1;
+      const bRank = isVegetable(b) ? 0 : 1;
+      if (aRank !== bRank) return aRank - bRank;
+      return String(a?.name ?? "").localeCompare(String(b?.name ?? ""));
+    });
+  }, [categories]);
+
   const fetchAll = useCallback(async () => {
     setLoading(true);
     setErrorMessage("");
@@ -216,8 +227,18 @@ function Report() {
       });
     }
 
-    // Sort by highest selected-date price so top rows show high prices.
+    // Sort category-wise (Vegetables first), then by highest selected-date price.
     rowsOut.sort((a, b) => {
+      const aCat = String(a.categoryName ?? "-");
+      const bCat = String(b.categoryName ?? "-");
+
+      const aIsVeg = aCat.toLowerCase().includes("veget");
+      const bIsVeg = bCat.toLowerCase().includes("veget");
+      if (aIsVeg !== bIsVeg) return aIsVeg ? -1 : 1;
+
+      const catCmp = aCat.localeCompare(bCat);
+      if (catCmp !== 0) return catCmp;
+
       const aMax = Math.max(
         Number.isFinite(Number(a.dToday)) ? Number(a.dToday) : -Infinity,
         Number.isFinite(Number(a.tToday)) ? Number(a.tToday) : -Infinity
@@ -369,6 +390,7 @@ function Report() {
 
       const head = [[
         "Product",
+        "Category",
         `Dambulla (${selectedDate})`,
         `Tambuttegama (${selectedDate})`,
         `${getDifferenceHeader()} (${diffModeLabel})`,
@@ -426,6 +448,7 @@ function Report() {
 
         return [
           pdfCell(String(r.name ?? "-")),
+          pdfCell(String(r.categoryName ?? "-")),
           pdfCell(dTodayText, dTodayColor),
           pdfCell(tTodayText, tTodayColor),
           pdfSignedDiffCell(getDifferenceByMode(r.dToday, r.tToday)),
@@ -564,7 +587,7 @@ function Report() {
               }}
             >
               <option value="">All</option>
-              {categories.map((c) => (
+              {sortedCategories.map((c) => (
                 <option key={c.id} value={String(c.id)}>
                   {c.name ?? `#${c.id}`}
                 </option>
