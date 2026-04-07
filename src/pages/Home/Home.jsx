@@ -261,13 +261,14 @@ function Home() {
 
       {/* FEATURES */}
       <section className="max-w-7xl mx-auto px-6 py-12">
-        <h2 className="text-3xl font-bold text-center mb-10 text-green-600">
-          Why Choose Us
-        </h2>
+        <div className="rounded-2xl bg-gradient-to-b from-green-50 to-white border border-green-100 px-6 py-10">
+          <h2 className="text-3xl font-bold text-center mb-10 bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent">
+            Why Choose Us
+          </h2>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* Market Insights */}
-          <div className="p-6 bg-white rounded-lg shadow-lg transform hover:scale-105 transition duration-300">
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Market Insights */}
+            <div className="p-6 bg-white rounded-xl border border-green-100 shadow-md hover:shadow-xl hover:border-green-200 transform hover:scale-105 transition duration-300">
             <div className="mb-4 text-4xl">📊</div>
             <h3 className="font-semibold text-xl mb-2 text-green-700">Market Insights</h3>
             <p className="text-sm text-gray-600">
@@ -276,7 +277,7 @@ function Home() {
           </div>
 
           {/* Easy Connection */}
-          <div className="p-6 bg-white rounded-lg shadow-lg transform hover:scale-105 transition duration-300">
+          <div className="p-6 bg-white rounded-xl border border-green-100 shadow-md hover:shadow-xl hover:border-green-200 transform hover:scale-105 transition duration-300">
             <div className="mb-4 text-4xl">🤝</div>
             <h3 className="font-semibold text-xl mb-2 text-green-700">Easy Connection</h3>
             <p className="text-sm text-gray-600">
@@ -285,23 +286,26 @@ function Home() {
           </div>
 
           {/* Fast & Simple */}
-          <div className="p-6 bg-white rounded-lg shadow-lg transform hover:scale-105 transition duration-300">
+          <div className="p-6 bg-white rounded-xl border border-green-100 shadow-md hover:shadow-xl hover:border-green-200 transform hover:scale-105 transition duration-300">
             <div className="mb-4 text-4xl">⚡</div>
             <h3 className="font-semibold text-xl mb-2 text-green-700">Fast & Simple</h3>
             <p className="text-sm text-gray-600">
               Enjoy a clean, easy interface designed for all farmers.
             </p>
           </div>
+          </div>
         </div>
       </section>
       {/* FEEDBACK */}
-      <section className="bg-gray-50 py-12">
+      <section className="bg-gradient-to-b from-green-50 to-white py-12">
         <div className="max-w-7xl mx-auto px-6">
 
           {/* Title */}
           <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold text-green-600">Farmer Feedback</h2>
-            <p className="text-sm text-gray-500 mt-2">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent">
+              Farmer Feedback
+            </h2>
+            <p className="text-sm text-gray-600 mt-2">
               Real experiences from our farmers
             </p>
           </div>
@@ -320,7 +324,7 @@ function Home() {
                     className="px-2"
                     style={{ flex: `0 0 ${feedbackCardBasis}%` }}
                   >
-                    <div className="h-full bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-300">
+                    <div className="h-full bg-white/90 p-6 rounded-xl border border-green-100 shadow-md hover:shadow-xl hover:border-green-200 transform hover:scale-105 transition duration-300">
                       <p className="text-sm text-gray-700">"{item.message}"</p>
                       <div className="mt-4">
                         <p className="font-semibold text-gray-900">{item.name}</p>

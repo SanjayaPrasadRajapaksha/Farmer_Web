@@ -622,17 +622,17 @@ function Report() {
           <LoadingSpinner label="Loading report..." />
         ) : (
           <>
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50 text-gray-700">
+            <table className="min-w-full text-sm text-gray-700">
+              <thead className="bg-gradient-to-r bg-green-900 text-white">
                 <tr>
-                  <th className="text-left px-4 py-3 border-b">Product</th>
-                  <th className="text-left px-4 py-3 border-b">Dambulla ({selectedDate || "-"})</th>
-                  <th className="text-left px-4 py-3 border-b">Tambuttegama ({selectedDate || "-"})</th>
-                  <th className="text-left px-4 py-3 border-b">
+                  <th className="text-left px-4 py-3 border-b border-white/15 font-semibold whitespace-nowrap">Product</th>
+                  <th className="text-left px-4 py-3 border-b border-white/15 font-semibold whitespace-nowrap">Dambulla ({selectedDate || "-"})</th>
+                  <th className="text-left px-4 py-3 border-b border-white/15 font-semibold whitespace-nowrap">Tambuttegama ({selectedDate || "-"})</th>
+                  <th className="text-left px-4 py-3 border-b border-white/15 font-semibold whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <span>{getDifferenceHeader()}</span>
                       <select
-                        className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm"
+                        className="rounded-md border border-white/30 bg-white/90 px-2 py-1 text-sm text-gray-900"
                         value={differenceMode}
                         onChange={(e) => setDifferenceMode(e.target.value)}
                         aria-label="Select difference direction"
@@ -642,13 +642,13 @@ function Report() {
                       </select>
                     </div>
                   </th>
-                  <th className="text-left px-4 py-3 border-b">Predicted {tomorrowDate || "tomorrow"} (D)</th>
-                  <th className="text-left px-4 py-3 border-b">Predicted {tomorrowDate || "tomorrow"} (T)</th>
-                  <th className="text-left px-4 py-3 border-b">
+                  <th className="text-left px-4 py-3 border-b border-white/15 font-semibold whitespace-nowrap">Predicted {tomorrowDate || "tomorrow"} (D)</th>
+                  <th className="text-left px-4 py-3 border-b border-white/15 font-semibold whitespace-nowrap">Predicted {tomorrowDate || "tomorrow"} (T)</th>
+                  <th className="text-left px-4 py-3 border-b border-white/15 font-semibold whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <span>Pred Diff</span>
                       <select
-                        className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm"
+                        className="rounded-md border border-white/30 bg-white/90 px-2 py-1 text-sm text-gray-900"
                         value={predDifferenceMode}
                         onChange={(e) => setPredDifferenceMode(e.target.value)}
                         aria-label="Select predicted diff direction"
@@ -663,12 +663,12 @@ function Report() {
               <tbody className="text-gray-700">
                 {filteredTableRows.length === 0 ? (
                   <tr>
-                    <td className="px-4 py-4" colSpan={7}>
+                    <td className="px-4 py-6 text-gray-600 bg-gray-50" colSpan={7}>
                       No market prices found for the selected date.
                     </td>
                   </tr>
                 ) : (
-                  pagedTableRows.map((r) => {
+                  pagedTableRows.map((r, idx) => {
                     const higherTodaySide = getHigherTodaySide(r.dToday, r.tToday);
                     const higherPredictedSide = getHigherPredictedSide(r.dPred, r.tPred);
                     const diffDT = getDifferenceByMode(r.dToday, r.tToday);
@@ -703,36 +703,39 @@ function Report() {
                     }
 
                     return (
-                      <tr key={r.productId} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 border-b">{r.name}</td>
-                        <td className="px-4 py-3 border-b">
+                      <tr
+                        key={r.productId}
+                        className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-green-50`}
+                      >
+                        <td className="px-4 py-3 border-b border-gray-100 font-medium text-gray-900">{r.name}</td>
+                        <td className="px-4 py-3 border-b border-gray-100 whitespace-nowrap">
                           <span className="inline-flex items-center gap-2">
                             <span>{formatPrice(r.dToday)}</span>
                             {dTodayIndicator}
                           </span>
                         </td>
-                        <td className="px-4 py-3 border-b">
+                        <td className="px-4 py-3 border-b border-gray-100 whitespace-nowrap">
                           <span className="inline-flex items-center gap-2">
                             <span>{formatPrice(r.tToday)}</span>
                             {tTodayIndicator}
                           </span>
                         </td>
-                        <td className="px-4 py-3 border-b">
+                        <td className="px-4 py-3 border-b border-gray-100 whitespace-nowrap">
                           {renderSignedDiff(diffDT)}
                         </td>
-                        <td className="px-4 py-3 border-b">
+                        <td className="px-4 py-3 border-b border-gray-100 whitespace-nowrap">
                           <span className="inline-flex items-center gap-2">
                             <span>{formatPrice(r.dPred)}</span>
                             {dPredIndicator}
                           </span>
                         </td>
-                        <td className="px-4 py-3 border-b">
+                        <td className="px-4 py-3 border-b border-gray-100 whitespace-nowrap">
                           <span className="inline-flex items-center gap-2">
                             <span>{formatPrice(r.tPred)}</span>
                             {tPredIndicator}
                           </span>
                         </td>
-                        <td className="px-4 py-3 border-b">
+                        <td className="px-4 py-3 border-b border-gray-100 whitespace-nowrap">
                           {renderSignedDiff(predDiffDT)}
                         </td>
                       </tr>
@@ -743,7 +746,7 @@ function Report() {
             </table>
 
             {filteredTableRows.length > 0 ? (
-              <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50 text-gray-700">
+              <div className="flex items-center justify-between px-4 py-3 border-t bg-green-50 text-gray-700">
                 <div className="text-sm">
                   Page {currentPage} / {totalPages}
                 </div>
