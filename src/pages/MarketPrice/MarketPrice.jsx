@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import marketImage from "../../assets/market.webp";
 import LoadingSpinner from "../../components/Loading/LoadingSpinner";
 
 const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || "http://localhost:8000";
@@ -268,9 +269,22 @@ function MarketPrice() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
-      <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="w-full">
+      <section className="relative w-full">
+        <img src={marketImage} alt="Market" className="w-full h-[70vh] object-cover" loading="eager" />
+        <div className="absolute inset-0 bg-black/40"></div>
+
+        <div className="absolute inset-0 flex flex-col justify-center items-start px-6 md:px-16 text-white">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4">Market Prices</h1>
+          <p className="max-w-xl text-sm md:text-lg text-gray-200">
+            Browse daily prices by date, category, and economic center.
+          </p>
+        </div>
+      </section>
+
+      <div className="max-w-6xl mx-auto px-4 py-10">
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
             <input
@@ -327,39 +341,40 @@ function MarketPrice() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-        </div>
-      </div>
-
-      {filteredProducts.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 text-gray-700">
-          No products match your filters.
-        </div>
-      ) : pricesForSelectedDate.length === 0 ? (
-        <div>
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
-            <LoadingSpinner
-              label={
-                `No market prices for ${selectedDate} in selected center. Try another date/center.`
-              }
-            />
           </div>
+        </div>
+
+        {filteredProducts.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 text-gray-700">
+            No products match your filters.
+          </div>
+        ) : pricesForSelectedDate.length === 0 ? (
+          <div>
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
+              <LoadingSpinner
+                label={
+                  `No market prices for ${selectedDate} in selected center. Try another date/center.`
+                }
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <SkeletonCard key={idx} />
+              ))}
+            </div>
+          </div>
+        ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {Array.from({ length: 6 }).map((_, idx) => (
-              <SkeletonCard key={idx} />
+            {filteredProducts.map((product) => (
+              <ProductPriceCard
+                key={product.id}
+                product={product}
+                latestPrice={priceByProductIdForDate.get(product.id)}
+              />
             ))}
           </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <ProductPriceCard
-              key={product.id}
-              product={product}
-              latestPrice={priceByProductIdForDate.get(product.id)}
-            />
-          ))}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
