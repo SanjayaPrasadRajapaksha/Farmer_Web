@@ -26,6 +26,22 @@ function toTime(value) {
   return Number.isFinite(t) ? t : -Infinity;
 }
 
+function normalizeCenterName(name) {
+  return String(name ?? "")
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .trim();
+}
+
+function isTambuttegamaCenter(center) {
+  const n = normalizeCenterName(center?.name);
+  return n === "tambuttegama" || n === "thambuttegama";
+}
+
+function isDambullaCenter(center) {
+  return normalizeCenterName(center?.name) === "dambulla";
+}
+
 function ProductPriceCard({ product, latestPrice }) {
   const imageUrl = product?.imageURL;
 
@@ -173,6 +189,22 @@ function MarketPrice() {
     return () => controller.abort();
   }, []);
 
+  const allowedEconomicCenters = useMemo(() => {
+    const centers = asArray(economicCenters);
+    const tambuttegama = centers.find(isTambuttegamaCenter);
+    const dambulla = centers.find(isDambullaCenter);
+    return [tambuttegama, dambulla].filter(Boolean);
+  }, [economicCenters]);
+
+  useEffect(() => {
+    if (selectedEconomicCenterId) return;
+    if (allowedEconomicCenters.length === 0) return;
+
+    const tambuttegama = allowedEconomicCenters.find(isTambuttegamaCenter);
+    const dambulla = allowedEconomicCenters.find(isDambullaCenter);
+    setSelectedEconomicCenterId(String(tambuttegama?.id ?? dambulla?.id ?? allowedEconomicCenters[0]?.id ?? ""));
+  }, [allowedEconomicCenters, selectedEconomicCenterId]);
+
   const filteredProducts = useMemo(() => {
     const q = toLowerSafe(searchQuery).trim();
     return asArray(products).filter((p) => {
@@ -271,13 +303,17 @@ function MarketPrice() {
               className="w-full px-3 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-green-500 outline-none transition"
               value={selectedEconomicCenterId}
               onChange={(e) => setSelectedEconomicCenterId(e.target.value)}
+              disabled={allowedEconomicCenters.length === 0}
             >
-              <option value="">All centers</option>
-              {asArray(economicCenters).map((ec) => (
-                <option key={ec.id} value={ec.id}>
-                  {ec.name}
-                </option>
-              ))}
+              {allowedEconomicCenters.length === 0 ? (
+                <option value="">No centers found</option>
+              ) : (
+                allowedEconomicCenters.map((ec) => (
+                  <option key={ec.id} value={ec.id}>
+                    {ec.name}
+                  </option>
+                ))
+              )}
             </select>
           </div>
 
@@ -303,9 +339,7 @@ function MarketPrice() {
           <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
             <LoadingSpinner
               label={
-                selectedEconomicCenterId
-                  ? `No market prices for ${selectedDate} in selected center. Try another date/center.`
-                  : `No market prices for ${selectedDate}. Try another date.`
+                `No market prices for ${selectedDate} in selected center. Try another date/center.`
               }
             />
           </div>
