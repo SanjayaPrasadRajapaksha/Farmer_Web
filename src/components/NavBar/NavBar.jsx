@@ -41,7 +41,7 @@ function NavBar() {
                   </span>
                   <span
                     className={
-                      "absolute left-0 -bottom-1 h-0.5 bg-green-400 transition-all " +
+                      "absolute left-0 -bottom-1 h-0.5 bg-yellow-400 transition-all " +
                       (isActive ? "w-full" : "w-0 group-hover:w-full")
                     }
                   />
@@ -82,7 +82,7 @@ function NavBar() {
               className={({ isActive }) =>
                 "block transition " +
                 (isActive
-                  ? "text-green-400 font-semibold border-l-2 border-green-400 pl-3"
+                  ? "text-green-400 font-semibold border-l-2 border-yellow-400 pl-3"
                   : "text-white hover:text-green-400")
               }
             >
