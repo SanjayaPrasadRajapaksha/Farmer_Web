@@ -65,10 +65,6 @@ function ProductPriceCard({ product, latestPrice }) {
               {latestPrice?.Economic_Center_Location?.name || "—"}
             </p>
             <p>
-              <span className="text-gray-500">Type:</span>{" "}
-              {latestPrice?.Price_Type?.name || "—"}
-            </p>
-            <p>
               <span className="text-gray-500">Date:</span>{" "}
               {latestPrice?.date || "—"}
             </p>
