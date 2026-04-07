@@ -12,7 +12,6 @@ function Home() {
     email: "",
     address: "",
     phone: "",
-    password: "",
   });
 
   const VISIBLE_FEEDBACK_CARDS = 4;
@@ -51,7 +50,7 @@ function Home() {
       }
 
       alert(data?.message || "Registration successful");
-      setForm({ name: "", email: "", address: "", phone: "", password: "" });
+      setForm({ name: "", email: "", address: "", phone: "" });
       setIsRegisterOpen(false);
     } catch (error) {
       console.error("registerCustomer request failed", error);
@@ -233,15 +232,6 @@ function Home() {
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
                 value={form.phone}
                 onChange={onChange("phone")}
-                required
-              />
-
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
-                value={form.password}
-                onChange={onChange("password")}
                 required
               />
 
