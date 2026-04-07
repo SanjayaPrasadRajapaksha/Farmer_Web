@@ -1,6 +1,6 @@
 import { Menu, Phone, X } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
 const NAV_LINKS = [
@@ -28,14 +28,26 @@ function NavBar() {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-8 font-medium text-white">
           {NAV_LINKS.map((item) => (
-            <Link
+            <NavLink
               key={item.to}
               to={item.to}
-              className="group relative hover:text-green-400 transition duration-300 pb-1"
+              end={item.to === "/"}
+              className="group relative transition duration-300 pb-1"
             >
-              {item.label}
-              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-green-400 transition-all group-hover:w-full"></span>
-            </Link>
+              {({ isActive }) => (
+                <>
+                  <span className={isActive ? "text-green-400" : "text-white group-hover:text-green-400"}>
+                    {item.label}
+                  </span>
+                  <span
+                    className={
+                      "absolute left-0 -bottom-1 h-0.5 bg-green-400 transition-all " +
+                      (isActive ? "w-full" : "w-0 group-hover:w-full")
+                    }
+                  />
+                </>
+              )}
+            </NavLink>
           ))}
         </div>
 
@@ -62,14 +74,20 @@ function NavBar() {
       {isOpen && (
         <div className="md:hidden bg-gray-800 text-white shadow-md px-6 py-4 space-y-4 transition duration-300">
           {NAV_LINKS.map((item) => (
-            <Link
+            <NavLink
               key={item.to}
               to={item.to}
+              end={item.to === "/"}
               onClick={() => setIsOpen(false)}
-              className="block hover:text-green-400 transition"
+              className={({ isActive }) =>
+                "block transition " +
+                (isActive
+                  ? "text-green-400 font-semibold border-l-2 border-green-400 pl-3"
+                  : "text-white hover:text-green-400")
+              }
             >
               {item.label}
-            </Link>
+            </NavLink>
           ))}
         </div>
       )}
