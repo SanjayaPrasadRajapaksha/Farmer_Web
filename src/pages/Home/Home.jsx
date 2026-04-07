@@ -1,7 +1,62 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import homeImage from "../../assets/home.jpg";
 
 function Home() {
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    address: "",
+    phone: "",
+    password: "",
+  });
+
+  const openRegister = () => setIsRegisterOpen(true);
+  const closeRegister = () => {
+    if (isSubmitting) return;
+    setIsRegisterOpen(false);
+  };
+
+  const onChange = (key) => (e) => {
+    setForm((prev) => ({ ...prev, [key]: e.target.value }));
+  };
+
+  const submitRegister = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      ...form,
+      role_id: 2,
+    };
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("http://localhost:8000/api/user/registerCustomer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        const message = data?.error || data?.message || "Registration failed";
+        alert(message);
+        return;
+      }
+
+      alert(data?.message || "Registration successful");
+      setForm({ name: "", email: "", address: "", phone: "", password: "" });
+      setIsRegisterOpen(false);
+    } catch (error) {
+      console.error("registerCustomer request failed", error);
+      alert("Could not reach server (http://localhost:8000)");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const feedback = [
     {
       id: 1,
@@ -24,38 +79,58 @@ function Home() {
       message:
         "Clean design and helpful info. Looking forward to more crops and more regions.",
     },
+    {
+      id: 4,
+      name: "N. Silva",
+      title: "Farm Co-op Member",
+      message:
+        "Clean design and helpful info. Looking forward to more crops and more regions.",
+    },
+    {
+      id: 5,
+      name: "N. Silva",
+      title: "Farm Co-op Member",
+      message:
+        "Clean design and helpful info. Looking forward to more crops and more regions.",
+    },
+    {
+      id: 6,
+      name: "N. Silva",
+      title: "Farm Co-op Member",
+      message:
+        "Clean design and helpful info. Looking forward to more crops and more regions.",
+    },
   ];
 
   return (
     <div className="w-full">
 
-      {/* HERO SECTION */}
+      {/* HERO */}
       <section className="relative w-full">
         <img
           src={homeImage}
-          alt="Farm landscape"
+          alt="Farm"
           className="w-full h-[70vh] object-cover"
         />
 
-        {/* Dark overlay */}
         <div className="absolute inset-0 bg-black/40"></div>
 
-        {/* Content */}
         <div className="absolute inset-0 flex flex-col justify-center items-start px-6 md:px-16 text-white">
           <h1 className="text-3xl md:text-5xl font-bold mb-4">
             Empowering Farmers with Smart Decisions 🌱
           </h1>
+
           <p className="max-w-xl text-sm md:text-lg mb-6 text-gray-200">
             Get real-time market prices, connect with buyers, and grow your farming business with ease.
           </p>
 
           <div className="flex gap-4">
-            <Link
-              to="/contact"
+            <button
+              onClick={openRegister}
               className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-md text-white font-semibold shadow-lg transition"
             >
               Register Now
-            </Link>
+            </button>
 
             <Link
               to="/marketprice"
@@ -66,63 +141,186 @@ function Home() {
           </div>
         </div>
       </section>
+      {/* POPUP */}
+      {isRegisterOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+
+          <div className="relative w-full max-w-md bg-white rounded-2xl p-6 shadow-2xl animate-fadeIn">
+
+            {/* ❌ Close Button (Top Right Corner) */}
+            <button
+              onClick={closeRegister}
+              className="absolute top-3 right-3 text-gray-400 hover:text-red-500 text-2xl font-bold transition"
+              disabled={isSubmitting}
+            >
+              &times;
+            </button>
+
+            {/* Header */}
+            <div className="text-center mb-5">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
+                Customer Registration
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Sign up to get daily market price updates via email
+              </p>
+            </div>
+
+            {/* FORM */}
+            <form onSubmit={submitRegister} className="space-y-4">
+
+              <input
+                placeholder="Full Name"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
+                value={form.name}
+                onChange={onChange("name")}
+                required
+              />
+
+              <input
+                type="email"
+                placeholder="Email Address"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
+                value={form.email}
+                onChange={onChange("email")}
+                required
+              />
+
+              <input
+                placeholder="Address"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
+                value={form.address}
+                onChange={onChange("address")}
+                required
+              />
+
+              <input
+                placeholder="Phone Number"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
+                value={form.phone}
+                onChange={onChange("phone")}
+                required
+              />
+
+              <input
+                type="password"
+                placeholder="Password"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
+                value={form.password}
+                onChange={onChange("password")}
+                required
+              />
+
+              {/* Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 py-2.5 rounded-lg text-white font-semibold transition transform hover:scale-105"
+              >
+                {isSubmitting ? "Registering..." : "Register"}
+              </button>
+
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* FEATURES */}
       <section className="max-w-7xl mx-auto px-6 py-12">
-        <h2 className="text-2xl font-semibold text-center mb-10">
+        <h2 className="text-3xl font-bold text-center mb-10 text-green-600">
           Why Choose Us
         </h2>
 
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-lg shadow-md bg-white text-center">
-            <h3 className="font-semibold text-lg mb-2">📊 Market Insights</h3>
+          {/* Market Insights */}
+          <div className="p-6 bg-white rounded-lg shadow-lg transform hover:scale-105 transition duration-300">
+            <div className="mb-4 text-4xl">📊</div>
+            <h3 className="font-semibold text-xl mb-2 text-green-700">Market Insights</h3>
             <p className="text-sm text-gray-600">
               Stay updated with daily crop prices and trends.
             </p>
           </div>
 
-          <div className="p-6 rounded-lg shadow-md bg-white text-center">
-            <h3 className="font-semibold text-lg mb-2">🤝 Easy Connection</h3>
+          {/* Easy Connection */}
+          <div className="p-6 bg-white rounded-lg shadow-lg transform hover:scale-105 transition duration-300">
+            <div className="mb-4 text-4xl">🤝</div>
+            <h3 className="font-semibold text-xl mb-2 text-green-700">Easy Connection</h3>
             <p className="text-sm text-gray-600">
-              Connect directly with buyers and sellers.
+              Connect directly with buyers and sellers seamlessly.
             </p>
           </div>
 
-          <div className="p-6 rounded-lg shadow-md bg-white text-center">
-            <h3 className="font-semibold text-lg mb-2">⚡ Fast & Simple</h3>
+          {/* Fast & Simple */}
+          <div className="p-6 bg-white rounded-lg shadow-lg transform hover:scale-105 transition duration-300">
+            <div className="mb-4 text-4xl">⚡</div>
+            <h3 className="font-semibold text-xl mb-2 text-green-700">Fast & Simple</h3>
             <p className="text-sm text-gray-600">
-              Clean interface designed for all farmers.
+              Enjoy a clean, easy interface designed for all farmers.
             </p>
           </div>
         </div>
       </section>
-
       {/* FEEDBACK */}
       <section className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-semibold">Farmer Feedback</h2>
-            <span className="text-sm text-gray-500">Real experiences</span>
+
+          {/* Title */}
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl font-bold text-green-600">Farmer Feedback</h2>
+            <p className="text-sm text-gray-500 mt-2">
+              Real experiences from our farmers
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {feedback.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition"
-              >
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  "{item.message}"
-                </p>
+          {/* Carousel */}
+          <div className="relative">
 
-                <div className="mt-4">
-                  <p className="font-semibold text-gray-900">
-                    {item.name}
-                  </p>
-                  <p className="text-xs text-gray-500">{item.title}</p>
+            {/* Scroll Container */}
+            <div
+              id="feedbackSlider"
+              className="flex gap-6 overflow-x-auto scroll-smooth no-scrollbar"
+            >
+              {feedback.map((item) => (
+                <div
+                  key={item.id}
+                  className="min-w-[300px] bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-300"
+                >
+                  <p className="text-sm text-gray-700">"{item.message}"</p>
+
+                  <div className="mt-4">
+                    <p className="font-semibold text-gray-900">{item.name}</p>
+                    <p className="text-xs text-gray-500">{item.title}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* Left Button */}
+            <button
+              onClick={() => {
+                document.getElementById("feedbackSlider").scrollBy({
+                  left: -300,
+                  behavior: "smooth",
+                });
+              }}
+              className="absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md px-3 py-2 rounded-full hover:bg-gray-100"
+            >
+              ◀
+            </button>
+
+            {/* Right Button */}
+            <button
+              onClick={() => {
+                document.getElementById("feedbackSlider").scrollBy({
+                  left: 300,
+                  behavior: "smooth",
+                });
+              }}
+              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md px-3 py-2 rounded-full hover:bg-gray-100"
+            >
+              ▶
+            </button>
+
           </div>
         </div>
       </section>

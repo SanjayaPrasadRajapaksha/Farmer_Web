@@ -1,61 +1,76 @@
-import { Phone } from 'lucide-react';
+import { useState } from "react";
+import { Phone, Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
 function NavBar() {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <nav className="bg-slate-800 text-black px-6 py-4" style={{ backgroundColor: '#f2f3fc' }}>
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        {/* Logo Section */}
-        <div className="flex items-center">
-          <img src={logo} alt="Logo" className="w-16 h-16 object-contain" />
-        </div>
+    <nav className="bg-white shadow-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
+        
+        {/* Logo */}
+        <Link to="/" className="flex items-center">
+          <img src={logo} alt="Logo" className="w-20.5 h-20 object-contain" />
+        </Link>
 
-        {/* Navigation Links */}
-        <div className="hidden md:flex space-x-8">
-          <a href="/" className="text-black hover:text-yellow-600 transition-colors font-medium">
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center space-x-8 font-medium">
+          <Link to="/" className="hover:text-green-600 transition border-b-2 border-transparent hover:border-green-600 pb-1">
             Home
-          </a>
-          <a href="/aboutus" className="text-black hover:text-yellow-600 transition-colors font-medium">
+          </Link>
+          <Link to="/aboutus" className="hover:text-green-600 transition border-b-2 border-transparent hover:border-green-600 pb-1">
             About
-          </a>
-           <a href="/marketprice" className="text-black hover:text-yellow-600 transition-colors font-medium">
+          </Link>
+          <Link to="/marketprice" className="hover:text-green-600 transition border-b-2 border-transparent hover:border-green-600 pb-1">
             Market Price
-          </a>
-          <a href="/report" className="text-black hover:text-yellow-600 transition-colors font-medium">
+          </Link>
+          <Link to="/report" className="hover:text-green-600 transition border-b-2 border-transparent hover:border-green-600 pb-1">
             Report
-          </a>
-          <a href="/faq" className="text-black hover:text-yellow-600 transition-colors font-medium">
+          </Link>
+          <Link to="/faq" className="hover:text-green-600 transition border-b-2 border-transparent hover:border-green-600 pb-1">
             FAQ
-          </a>
-          <a href="/feedback" className="text-black hover:text-yellow-600 transition-colors font-medium">
+          </Link>
+          <Link to="/feedback" className="hover:text-green-600 transition border-b-2 border-transparent hover:border-green-600 pb-1">
             Feedback
-          </a>
-          <a href="/contact" className="text-black hover:text-yellow-600 transition-colors font-medium">
+          </Link>
+          <Link to="/contact" className="hover:text-green-600 transition border-b-2 border-transparent hover:border-green-600 pb-1">
             Contact
-          </a>
+          </Link>
         </div>
 
-        {/* Contact Info and Search */}
-        <div className="flex items-center space-x-4">
-          <div className="hidden lg:flex items-center space-x-2 text-sm">
-            <div className="bg-green-500 rounded-full p-2">
-              <Phone className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <div className="text-black font-medium">Call : 653 77 19 00 </div>
-            </div>
+        {/* Right Section */}
+        <div className="hidden lg:flex items-center space-x-3">
+          <div className="bg-green-600 p-2 rounded-full">
+            <Phone className="w-4 h-4 text-white" />
           </div>
+          <span className="text-sm font-medium text-gray-700">
+            Call: 653 77 19 00
+          </span>
         </div>
 
-        {/* Mobile Menu Button */}
-        <div className="md:hidden">
-          <button className="text-black hover:text-yellow-600">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
+        {/* Mobile Button */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden text-gray-700"
+        >
+          {isOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
       </div>
+
+      {/* Mobile Menu */}
+      {isOpen && (
+        <div className="md:hidden bg-white shadow-md px-6 py-4 space-y-4">
+          <Link to="/" onClick={() => setIsOpen(false)} className="block hover:text-green-600">Home</Link>
+          <Link to="/aboutus" onClick={() => setIsOpen(false)} className="block hover:text-green-600">About</Link>
+          <Link to="/marketprice" onClick={() => setIsOpen(false)} className="block hover:text-green-600">Market Price</Link>
+          <Link to="/report" onClick={() => setIsOpen(false)} className="block hover:text-green-600">Report</Link>
+          <Link to="/faq" onClick={() => setIsOpen(false)} className="block hover:text-green-600">FAQ</Link>
+          <Link to="/feedback" onClick={() => setIsOpen(false)} className="block hover:text-green-600">Feedback</Link>
+          <Link to="/contact" onClick={() => setIsOpen(false)} className="block hover:text-green-600">Contact</Link>
+        </div>
+      )}
     </nav>
   );
 }
