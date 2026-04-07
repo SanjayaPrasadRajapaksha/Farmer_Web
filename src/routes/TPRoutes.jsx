@@ -6,6 +6,7 @@ import Feedback from "../pages/Feedback/Feedback";
 import Home from "../pages/Home/Home";
 import MarketPrice from "../pages/MarketPrice/MarketPrice";
 import Report from "../pages/Report/Report";
+import Analytics from "../pages/Analytics/Analytics";
 function TPRoutes() {
   return (
     <Routes>
@@ -16,6 +17,7 @@ function TPRoutes() {
       <Route path="/feedback" element={<Feedback />} />
       <Route path="/faq" element={<FaqPage />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/analytics" element={<Analytics />} />
     </Routes>
   );
 }

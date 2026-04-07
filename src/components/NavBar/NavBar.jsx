@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { label: "About", to: "/aboutus" },
   { label: "Market Price", to: "/marketprice" },
   { label: "Report", to: "/report" },
+  { label: "Analytics", to: "/analytics" },
   { label: "FAQ", to: "/faq" },
   { label: "Feedback", to: "/feedback" },
   { label: "Contact", to: "/contact" },
