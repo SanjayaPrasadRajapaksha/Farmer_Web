@@ -3,6 +3,16 @@ import { Phone, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
+const NAV_LINKS = [
+  { label: "Home", to: "/" },
+  { label: "About", to: "/aboutus" },
+  { label: "Market Price", to: "/marketprice" },
+  { label: "Report", to: "/report" },
+  { label: "FAQ", to: "/faq" },
+  { label: "Feedback", to: "/feedback" },
+  { label: "Contact", to: "/contact" },
+];
+
 function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -17,13 +27,13 @@ function NavBar() {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-8 font-medium text-white">
-          {["Home","About","Market Price","Report","FAQ","Feedback","Contact"].map((item, idx) => (
+          {NAV_LINKS.map((item) => (
             <Link
-              key={idx}
-              to={`/${item.toLowerCase().replace(/\s+/g, "")}`}
-              className="relative hover:text-green-400 transition duration-300 pb-1"
+              key={item.to}
+              to={item.to}
+              className="group relative hover:text-green-400 transition duration-300 pb-1"
             >
-              {item}
+              {item.label}
               <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-green-400 transition-all group-hover:w-full"></span>
             </Link>
           ))}
@@ -51,14 +61,14 @@ function NavBar() {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-gray-800 text-white shadow-md px-6 py-4 space-y-4 transition duration-300">
-          {["Home","About","Market Price","Report","FAQ","Feedback","Contact"].map((item, idx) => (
+          {NAV_LINKS.map((item) => (
             <Link
-              key={idx}
-              to={`/${item.toLowerCase().replace(/\s+/g, "")}`}
+              key={item.to}
+              to={item.to}
               onClick={() => setIsOpen(false)}
               className="block hover:text-green-400 transition"
             >
-              {item}
+              {item.label}
             </Link>
           ))}
         </div>
