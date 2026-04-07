@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import homeImage from "../../assets/home.jpg";
 
 function Home() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeFeedbackIndex, setActiveFeedbackIndex] = useState(0);
+  const [isFeedbackTransitionEnabled, setIsFeedbackTransitionEnabled] = useState(true);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -12,6 +14,8 @@ function Home() {
     phone: "",
     password: "",
   });
+
+  const VISIBLE_FEEDBACK_CARDS = 4;
 
   const openRegister = () => setIsRegisterOpen(true);
   const closeRegister = () => {
@@ -101,6 +105,36 @@ function Home() {
         "Clean design and helpful info. Looking forward to more crops and more regions.",
     },
   ];
+
+  const feedbackCardBasis = 100 / VISIBLE_FEEDBACK_CARDS;
+  const shouldAutoSlide = feedback.length > VISIBLE_FEEDBACK_CARDS;
+
+  const carouselSlides = (() => {
+    if (!feedback.length) return [];
+    if (shouldAutoSlide) return [...feedback, ...feedback.slice(0, VISIBLE_FEEDBACK_CARDS)];
+
+    // If there aren't enough feedback items, repeat to fill 5 cards.
+    return Array.from({ length: VISIBLE_FEEDBACK_CARDS }, (_, i) => feedback[i % feedback.length]);
+  })();
+
+  useEffect(() => {
+    if (!shouldAutoSlide) return;
+
+    const intervalId = setInterval(() => {
+      setActiveFeedbackIndex((prev) => prev + 1);
+    }, 4500);
+
+    return () => clearInterval(intervalId);
+  }, [shouldAutoSlide]);
+
+  const onFeedbackTransitionEnd = () => {
+    if (!shouldAutoSlide) return;
+    if (activeFeedbackIndex === feedback.length) {
+      setIsFeedbackTransitionEnabled(false);
+      setActiveFeedbackIndex(0);
+      setTimeout(() => setIsFeedbackTransitionEnabled(true), 0);
+    }
+  };
 
   return (
     <div className="w-full">
@@ -272,56 +306,32 @@ function Home() {
             </p>
           </div>
 
-          {/* Carousel */}
-          <div className="relative">
-
-            {/* Scroll Container */}
-            <div
-              id="feedbackSlider"
-              className="flex gap-6 overflow-x-auto scroll-smooth no-scrollbar"
-            >
-              {feedback.map((item) => (
-                <div
-                  key={item.id}
-                  className="min-w-[300px] bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-300"
-                >
-                  <p className="text-sm text-gray-700">"{item.message}"</p>
-
-                  <div className="mt-4">
-                    <p className="font-semibold text-gray-900">{item.name}</p>
-                    <p className="text-xs text-gray-500">{item.title}</p>
+          {/* Auto Passing Feedback (4 cards in one row, no scroll) */}
+          {feedback.length > 0 && (
+            <div className="relative overflow-hidden">
+              <div
+                className={`flex ${isFeedbackTransitionEnabled ? "transition-transform duration-700 ease-in-out" : ""}`}
+                style={{ transform: `translateX(-${activeFeedbackIndex * feedbackCardBasis}%)` }}
+                onTransitionEnd={onFeedbackTransitionEnd}
+              >
+                {carouselSlides.map((item, idx) => (
+                  <div
+                    key={`${item.id}-${idx}`}
+                    className="px-2"
+                    style={{ flex: `0 0 ${feedbackCardBasis}%` }}
+                  >
+                    <div className="h-full bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-300">
+                      <p className="text-sm text-gray-700">"{item.message}"</p>
+                      <div className="mt-4">
+                        <p className="font-semibold text-gray-900">{item.name}</p>
+                        <p className="text-xs text-gray-500">{item.title}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-
-            {/* Left Button */}
-            <button
-              onClick={() => {
-                document.getElementById("feedbackSlider").scrollBy({
-                  left: -300,
-                  behavior: "smooth",
-                });
-              }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md px-3 py-2 rounded-full hover:bg-gray-100"
-            >
-              ◀
-            </button>
-
-            {/* Right Button */}
-            <button
-              onClick={() => {
-                document.getElementById("feedbackSlider").scrollBy({
-                  left: 300,
-                  behavior: "smooth",
-                });
-              }}
-              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md px-3 py-2 rounded-full hover:bg-gray-100"
-            >
-              ▶
-            </button>
-
-          </div>
+          )}
         </div>
       </section>
 
