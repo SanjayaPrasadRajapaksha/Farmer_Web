@@ -526,7 +526,7 @@ function Report() {
       <div className="flex items-center justify-end mb-4">
         <button
           type="button"
-          className="px-3 py-2 rounded-md bg-green-600 text-white text-sm disabled:opacity-60"
+          className="px-3 py-2 rounded-md bg-green-600 text-white text-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           disabled={loading || missingCenters || filteredTableRows.length === 0}
           onClick={onDownloadPdf}
         >
@@ -558,7 +558,7 @@ function Report() {
             <input
               id="report-date"
               type="date"
-              className="rounded-md w-full px-3 py-2 border border-gray-300 outline-none"
+              className="rounded-md w-full px-3 py-2 border border-gray-300 outline-none cursor-pointer"
               value={selectedDate}
               onChange={(e) => {
                 setSelectedDate(e.target.value);
@@ -575,7 +575,7 @@ function Report() {
             <input
               id="report-prediction-date"
               type="text"
-              className="rounded-md w-full px-3 py-2 border border-gray-300 outline-none bg-gray-50"
+              className="rounded-md w-full px-3 py-2 border border-gray-300 outline-none bg-gray-50 cursor-not-allowed"
               value={tomorrowDate || "-"}
               readOnly
             />
@@ -588,7 +588,7 @@ function Report() {
             <input
               id="report-product-name"
               type="text"
-              className="rounded-md w-full px-3 py-2 border border-gray-300 outline-none"
+              className="rounded-md w-full px-3 py-2 border border-gray-300 outline-none cursor-text"
               value={filters.productName}
               onChange={(e) => {
                 setFilters((f) => ({ ...f, productName: e.target.value }));
@@ -604,7 +604,7 @@ function Report() {
             </label>
             <select
               id="report-category"
-              className="rounded-md w-full px-3 py-2 border border-gray-300 outline-none bg-white"
+              className="rounded-md w-full px-3 py-2 border border-gray-300 outline-none bg-white cursor-pointer"
               value={filters.categoryId}
               onChange={(e) => {
                 setFilters((f) => ({ ...f, categoryId: e.target.value }));
@@ -625,7 +625,7 @@ function Report() {
           <p className="text-sm text-gray-600">Showing {filteredTableRows.length} result(s)</p>
           <button
             type="button"
-            className="px-3 py-2 rounded-md border border-gray-300 bg-white text-sm"
+            className="px-3 py-2 rounded-md border border-gray-300 bg-white text-sm cursor-pointer"
             onClick={() => {
               setFilters({ productName: "", categoryId: "" });
               setCurrentPage(1);
@@ -657,7 +657,7 @@ function Report() {
                     <div className="flex items-center gap-2">
                       <span>{getDifferenceHeader()}</span>
                       <select
-                        className="rounded-md border border-white/30 bg-white/90 px-2 py-1 text-sm text-gray-900"
+                        className="rounded-md border border-white/30 bg-white/90 px-2 py-1 text-sm text-gray-900 cursor-pointer"
                         value={differenceMode}
                         onChange={(e) => setDifferenceMode(e.target.value)}
                         aria-label="Select difference direction"
@@ -673,7 +673,7 @@ function Report() {
                     <div className="flex items-center gap-2">
                       <span>Pred Diff</span>
                       <select
-                        className="rounded-md border border-white/30 bg-white/90 px-2 py-1 text-sm text-gray-900"
+                        className="rounded-md border border-white/30 bg-white/90 px-2 py-1 text-sm text-gray-900 cursor-pointer"
                         value={predDifferenceMode}
                         onChange={(e) => setPredDifferenceMode(e.target.value)}
                         aria-label="Select predicted diff direction"
@@ -781,7 +781,7 @@ function Report() {
                   </label>
                   <select
                     id="report-rows"
-                    className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm"
+                    className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm cursor-pointer"
                     value={String(pageSize)}
                     onChange={(e) => {
                       setPageSize(Number(e.target.value));
@@ -796,7 +796,7 @@ function Report() {
 
                   <button
                     type="button"
-                    className="px-3 py-1 rounded-md border border-gray-300 bg-white disabled:opacity-60"
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     disabled={currentPage <= 1}
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   >
@@ -804,7 +804,7 @@ function Report() {
                   </button>
                   <button
                     type="button"
-                    className="px-3 py-1 rounded-md border border-gray-300 bg-white disabled:opacity-60"
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     disabled={currentPage >= totalPages}
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   >

@@ -591,7 +591,7 @@ function AnalyticsFilters({
         </label>
         <select
           id="analytics-center"
-          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none"
+          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none cursor-pointer"
           value={centerFilter}
           onChange={(e) => setCenterFilter(e.target.value)}
         >
@@ -609,14 +609,14 @@ function AnalyticsFilters({
           <input
             id="analytics-product"
             list="analytics-product-list"
-            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none"
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none cursor-text"
             placeholder="Select a product"
             value={productSearch}
             onChange={(e) => onProductSearchChange(e.target.value)}
           />
           <button
             type="button"
-            className="shrink-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+            className="shrink-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm cursor-pointer"
             onClick={clearProductSelection}
           >
             Clear
@@ -684,7 +684,7 @@ function AnalyticsChartsGrid({
             <input
               id="analytics-daily-from"
               type="date"
-              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none"
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none cursor-pointer"
               value={dailyFromDate}
               onChange={(e) => setDailyFromDate(e.target.value)}
               min={minAvailableDate || undefined}
@@ -698,7 +698,7 @@ function AnalyticsChartsGrid({
             <input
               id="analytics-daily-to"
               type="date"
-              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none"
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none cursor-pointer"
               value={dailyToDate}
               onChange={(e) => setDailyToDate(e.target.value)}
               min={minAvailableDate || undefined}
@@ -756,7 +756,7 @@ function AnalyticsChartsGrid({
           <input
             id="analytics-week"
             type="week"
-            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none"
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none cursor-pointer"
             value={weeklyWeek}
             onChange={(e) => setWeeklyWeek(e.target.value)}
           />
@@ -801,7 +801,7 @@ function AnalyticsChartsGrid({
           <input
             id="analytics-month"
             type="month"
-            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none"
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none cursor-pointer"
             value={monthlyMonth}
             onChange={(e) => setMonthlyMonth(e.target.value)}
             min={minAvailableMonth || undefined}
