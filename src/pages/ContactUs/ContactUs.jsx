@@ -101,7 +101,7 @@ function ContactUs() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-gray-900">Phone</p>
-                      <p className="text-sm text-gray-600">+94 77 123 4567</p>
+                      <p className="text-sm text-gray-600">653 77 19 00 / 658 02 55 84</p>
                     </div>
                   </div>
 
