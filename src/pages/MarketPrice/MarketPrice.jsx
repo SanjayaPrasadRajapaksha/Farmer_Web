@@ -356,8 +356,8 @@ function MarketPrice() {
         </div>
 
         {pricedFilteredProducts.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 text-gray-700">
-            No products match your filters.
+          <div className="bg-white border border-gray-200 rounded-2xl p-6">
+            <LoadingSpinner label="No products match your filters." />
           </div>
         ) : pricesForSelectedDate.length === 0 ? (
           <div>
