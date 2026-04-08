@@ -158,13 +158,20 @@ function buildDailyValueMap(rows, centerAId, centerBId, fromDate, toDate) {
 }
 
 function buildWeeklySeriesFromDailyMap(dailyMap, startDate, weeksCount) {
+  // WEEKLY AVG LOGIC
+  // We average only over the days that actually have price data.
+  // Example: if a product has 5 recorded price-days in a week, the weekly average is:
+  //   weeklyAvg = (sum of those 5 prices) / 5
+  // NOT divide by 7 (missing days are ignored, not treated as 0).
+  // Note: we track separate counts for center A and center B, because one center may have
+  // data on days where the other center has no entry.
   const out = [];
   for (let w = 0; w < weeksCount; w += 1) {
     const weekStart = addDaysIsoUtc(startDate, w * 7);
     let aSum = 0;
     let bSum = 0;
-    let aCount = 0;
-    let bCount = 0;
+    let aCount = 0; // number of days with a valid A-center price
+    let bCount = 0; // number of days with a valid B-center price
 
     for (let d = 0; d < 7; d += 1) {
       const date = addDaysIsoUtc(weekStart, d);
@@ -181,7 +188,7 @@ function buildWeeklySeriesFromDailyMap(dailyMap, startDate, weeksCount) {
 
     out.push({
       week: weekStart,
-      // Average over days that actually have price data (not fixed 7 days).
+      // Divide by available-day count (not fixed 7).
       aAvg: aCount > 0 ? aSum / aCount : null,
       bAvg: bCount > 0 ? bSum / bCount : null,
     });
@@ -241,6 +248,11 @@ function computeMonthlySeries({
   endMonthKey,
   monthsCount,
 }) {
+  // MONTHLY AVG LOGIC
+  // Same idea as weekly: average over the number of days that have data.
+  // Example: if a product has 25 recorded price-days in a month:
+  //   monthlyAvg = (sum of those 25 prices) / 25
+  // NOT divide by all days in the calendar month.
   if (!centerAId || !centerBId || !endMonthKey) return [];
 
   const endMonthDate = parseIsoToUtcDate(`${endMonthKey}-01`);
@@ -284,7 +296,7 @@ function computeMonthlySeries({
 
     return {
       month: monthKey,
-      // Average over days that actually have price data (not all month days).
+      // Divide by available-day count (not calendar days-in-month).
       aAvg: aCount > 0 ? aSum / aCount : null,
       bAvg: bCount > 0 ? bSum / bCount : null,
     };
