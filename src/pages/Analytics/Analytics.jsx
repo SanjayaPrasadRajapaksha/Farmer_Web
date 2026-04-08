@@ -2,16 +2,16 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Legend,
+    Line,
+    LineChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
 } from "recharts";
 import LoadingSpinner from "../../components/Loading/LoadingSpinner";
 
@@ -858,7 +858,7 @@ AnalyticsChartsGrid.propTypes = {
   monthlySeries: PropTypes.array.isRequired,
 };
 
-function AnalyticsMain({ loading, errorMessage, children }) {
+function AnalyticsMain({ errorMessage, children }) {
   return (
     <>
       {errorMessage ? (
@@ -867,25 +867,18 @@ function AnalyticsMain({ loading, errorMessage, children }) {
         </div>
       ) : null}
 
-      {loading ? (
-        <div className="mt-8">
-          <LoadingSpinner label="Loading analytics..." />
-        </div>
-      ) : (
-        children
-      )}
+      {children}
     </>
   );
 }
 
 AnalyticsMain.propTypes = {
-  loading: PropTypes.bool.isRequired,
   errorMessage: PropTypes.string.isRequired,
   children: PropTypes.node,
 };
 
 function Analytics() {
-  const { loading, errorMessage, marketPrices, economicCenters, products } = useAnalyticsRemoteData();
+  const { errorMessage, marketPrices, economicCenters, products } = useAnalyticsRemoteData();
 
   const { productSearch, selectedProductId, sortedProducts, onProductSearchChange, clearProductSelection } = useProductSelection(products);
 
@@ -1027,7 +1020,7 @@ function Analytics() {
         />
       </div>
 
-      <AnalyticsMain loading={loading} errorMessage={errorMessage}>
+      <AnalyticsMain errorMessage={errorMessage}>
         {selectedProductId ? (
           <AnalyticsChartsGrid
             WEEKLY_WEEKS={WEEKLY_WEEKS}
