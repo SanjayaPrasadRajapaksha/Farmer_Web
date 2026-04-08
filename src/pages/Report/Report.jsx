@@ -36,7 +36,8 @@ function Report() {
   const [economicCenters, setEconomicCenters] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  const [selectedDate, setSelectedDate] = useState("");
+  // Default the date picker to the current date (even if there are no price records for today).
+  const [selectedDate, setSelectedDate] = useState(() => formatLocalIsoDate(new Date()));
 
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -134,14 +135,9 @@ function Report() {
   const availableDatesSet = useMemo(() => new Set(availableDates), [availableDates]);
 
   useEffect(() => {
+    // If the user clears the date input manually, fall back to current date.
     if (selectedDate) return;
-    if (availableDates.length === 0) return;
-    const todayIso = formatLocalIsoDate(new Date());
-    if (availableDatesSet.has(todayIso)) {
-      setSelectedDate(todayIso);
-      return;
-    }
-    setSelectedDate(availableDates.at(-1) || "");
+    setSelectedDate(formatLocalIsoDate(new Date()));
   }, [availableDates, availableDatesSet, selectedDate]);
 
   const priceIndex = useMemo(() => {
@@ -539,7 +535,7 @@ function Report() {
                 setSelectedDate(e.target.value);
                 setCurrentPage(1);
               }}
-              max={availableDates.length ? availableDates.at(-1) : undefined}
+              max={formatLocalIsoDate(new Date())}
             />
           </div>
 
