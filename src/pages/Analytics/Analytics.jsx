@@ -2,16 +2,16 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 import {
-    Bar,
-    BarChart,
-    CartesianGrid,
-    Legend,
-    Line,
-    LineChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 import LoadingSpinner from "../../components/Loading/LoadingSpinner";
 
@@ -163,26 +163,27 @@ function buildWeeklySeriesFromDailyMap(dailyMap, startDate, weeksCount) {
     const weekStart = addDaysIsoUtc(startDate, w * 7);
     let aSum = 0;
     let bSum = 0;
-    let aHasAny = false;
-    let bHasAny = false;
+    let aCount = 0;
+    let bCount = 0;
 
     for (let d = 0; d < 7; d += 1) {
       const date = addDaysIsoUtc(weekStart, d);
       const cur = dailyMap.get(date);
       if (cur?.aVal !== null && cur?.aVal !== undefined) {
         aSum += cur.aVal;
-        aHasAny = true;
+        aCount += 1;
       }
       if (cur?.bVal !== null && cur?.bVal !== undefined) {
         bSum += cur.bVal;
-        bHasAny = true;
+        bCount += 1;
       }
     }
 
     out.push({
       week: weekStart,
-      aAvg: aHasAny ? aSum / 7 : null,
-      bAvg: bHasAny ? bSum / 7 : null,
+      // Average over days that actually have price data (not fixed 7 days).
+      aAvg: aCount > 0 ? aSum / aCount : null,
+      bAvg: bCount > 0 ? bSum / bCount : null,
     });
   }
   return out;
@@ -265,26 +266,27 @@ function computeMonthlySeries({
     const monthStart = `${monthKey}-01`;
     let aSum = 0;
     let bSum = 0;
-    let aHasAny = false;
-    let bHasAny = false;
+    let aCount = 0;
+    let bCount = 0;
 
     for (let d = 0; d < daysInMonth; d += 1) {
       const date = addDaysIsoUtc(monthStart, d);
       const cur = dailyMap.get(date);
       if (cur?.aVal !== null && cur?.aVal !== undefined) {
         aSum += cur.aVal;
-        aHasAny = true;
+        aCount += 1;
       }
       if (cur?.bVal !== null && cur?.bVal !== undefined) {
         bSum += cur.bVal;
-        bHasAny = true;
+        bCount += 1;
       }
     }
 
     return {
       month: monthKey,
-      aAvg: aHasAny ? aSum / daysInMonth : null,
-      bAvg: bHasAny ? bSum / daysInMonth : null,
+      // Average over days that actually have price data (not all month days).
+      aAvg: aCount > 0 ? aSum / aCount : null,
+      bAvg: bCount > 0 ? bSum / bCount : null,
     };
   });
 }
