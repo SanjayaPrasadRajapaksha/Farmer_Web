@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 import marketImage from "../../assets/market.webp";
 import LoadingSpinner from "../../components/Loading/LoadingSpinner";
@@ -30,7 +31,7 @@ function toTime(value) {
 function normalizeCenterName(name) {
   return String(name ?? "")
     .toLowerCase()
-    .replace(/\s+/g, "")
+    .replaceAll(/\s+/g, "")
     .trim();
 }
 
@@ -93,6 +94,11 @@ function ProductPriceCard({ product, latestPrice }) {
     </div>
   );
 }
+
+ProductPriceCard.propTypes = {
+  product: PropTypes.object,
+  latestPrice: PropTypes.object,
+};
 
 function SkeletonCard() {
   return (
@@ -279,6 +285,11 @@ function MarketPrice() {
     );
   }
 
+  const dateInputId = "marketprice-date";
+  const categorySelectId = "marketprice-category";
+  const economicCenterSelectId = "marketprice-economic-center";
+  const searchInputId = "marketprice-search";
+
   return (
     <div className="w-full">
       <section className="relative w-full">
@@ -297,19 +308,21 @@ function MarketPrice() {
         <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
+            <label htmlFor={dateInputId} className="block text-xs font-medium text-gray-600 mb-1">Date</label>
             <input
+              id={dateInputId}
               type="date"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition cursor-pointer"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
+            <label htmlFor={categorySelectId} className="block text-xs font-medium text-gray-600 mb-1">Category</label>
             <select
-              className="w-full px-3 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-green-500 outline-none transition"
+              id={categorySelectId}
+              className="w-full px-3 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-green-500 outline-none transition cursor-pointer"
               value={selectedCategoryId}
               onChange={(e) => setSelectedCategoryId(e.target.value)}
             >
@@ -323,9 +336,10 @@ function MarketPrice() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Economic Center</label>
+            <label htmlFor={economicCenterSelectId} className="block text-xs font-medium text-gray-600 mb-1">Economic Center</label>
             <select
-              className="w-full px-3 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-green-500 outline-none transition"
+              id={economicCenterSelectId}
+              className="w-full px-3 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-green-500 outline-none transition cursor-pointer disabled:cursor-not-allowed"
               value={selectedEconomicCenterId}
               onChange={(e) => setSelectedEconomicCenterId(e.target.value)}
               disabled={allowedEconomicCenters.length === 0}
@@ -343,11 +357,12 @@ function MarketPrice() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Search</label>
+            <label htmlFor={searchInputId} className="block text-xs font-medium text-gray-600 mb-1">Search</label>
             <input
+              id={searchInputId}
               type="text"
               placeholder="Search by product name"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition cursor-text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -355,36 +370,44 @@ function MarketPrice() {
           </div>
         </div>
 
-        {pricedFilteredProducts.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-2xl p-6">
-            <LoadingSpinner label="No products match your filters." />
-          </div>
-        ) : pricesForSelectedDate.length === 0 ? (
-          <div>
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
-              <LoadingSpinner
-                label={
-                  `No market prices for ${selectedDate} in selected center. Try another date/center.`
-                }
-              />
-            </div>
+        {(() => {
+          if (pricedFilteredProducts.length === 0) {
+            return (
+              <div className="bg-white border border-gray-200 rounded-2xl p-6">
+                <LoadingSpinner label="No products match your filters." />
+              </div>
+            );
+          }
+
+          if (pricesForSelectedDate.length === 0) {
+            return (
+              <div>
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
+                  <LoadingSpinner
+                    label={`No market prices for ${selectedDate} in selected center. Try another date/center.`}
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {["a", "b", "c", "d", "e", "f"].map((key) => (
+                    <SkeletonCard key={key} />
+                  ))}
+                </div>
+              </div>
+            );
+          }
+
+          return (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 6 }).map((_, idx) => (
-                <SkeletonCard key={idx} />
+              {pricedFilteredProducts.map((product) => (
+                <ProductPriceCard
+                  key={product.id}
+                  product={product}
+                  latestPrice={priceByProductIdForDate.get(String(product.id))}
+                />
               ))}
             </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {pricedFilteredProducts.map((product) => (
-              <ProductPriceCard
-                key={product.id}
-                product={product}
-                latestPrice={priceByProductIdForDate.get(String(product.id))}
-              />
-            ))}
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );
