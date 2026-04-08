@@ -1052,7 +1052,11 @@ function Analytics() {
             weeklySeries={weeklySeries}
             monthlySeries={monthlySeries}
           />
-        ) : null}
+        ) : (
+          <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
+            <LoadingSpinner label="Please select product" />
+          </div>
+        )}
       </AnalyticsMain>
     </div>
   );
