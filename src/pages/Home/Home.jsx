@@ -1,12 +1,22 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import homeImage from "../../assets/home.jpg";
+import LoadingSpinner from "../../components/Loading/LoadingSpinner";
 
 function Home() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeFeedbackIndex, setActiveFeedbackIndex] = useState(0);
   const [isFeedbackTransitionEnabled, setIsFeedbackTransitionEnabled] = useState(true);
+
+  const [feedbackItems, setFeedbackItems] = useState([]);
+  const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
+  const [feedbackError, setFeedbackError] = useState(null);
+
+  const [isAddFeedbackOpen, setIsAddFeedbackOpen] = useState(false);
+  const [isFeedbackSubmitting, setIsFeedbackSubmitting] = useState(false);
+  const [feedbackForm, setFeedbackForm] = useState({ name: "", message: "", rate: "" });
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -14,12 +24,20 @@ function Home() {
     phone: "",
   });
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
   const VISIBLE_FEEDBACK_CARDS = 4;
 
   const openRegister = () => setIsRegisterOpen(true);
   const closeRegister = () => {
     if (isSubmitting) return;
     setIsRegisterOpen(false);
+  };
+
+  const openAddFeedback = () => setIsAddFeedbackOpen(true);
+  const closeAddFeedback = () => {
+    if (isFeedbackSubmitting) return;
+    setIsAddFeedbackOpen(false);
   };
 
   const onChange = (key) => (e) => {
@@ -30,7 +48,7 @@ function Home() {
     // - While typing, we keep only digits and limit length to 10 so the form state
     //   can never contain invalid characters.
     if (key === "phone") {
-      const digitsOnly = String(rawValue ?? "").replace(/\D/g, "").slice(0, 10);
+      const digitsOnly = String(rawValue ?? "").replaceAll(/\D/g, "").slice(0, 10);
       setForm((prev) => ({ ...prev, [key]: digitsOnly }));
       return;
     }
@@ -110,61 +128,110 @@ function Home() {
     }
   };
 
-  const feedback = [
-    {
-      id: 1,
-      name: "A. Perera",
-      title: "Smallholder Farmer",
-      message:
-        "The market price updates helped me decide when to sell. The app is simple and fast.",
-    },
-    {
-      id: 2,
-      name: "S. Fernando",
-      title: "Vegetable Grower",
-      message:
-        "Registering was easy. I like that everything is in one place and the home page is clear.",
-    },
-    {
-      id: 3,
-      name: "N. Silva",
-      title: "Farm Co-op Member",
-      message:
-        "Clean design and helpful info. Looking forward to more crops and more regions.",
-    },
-    {
-      id: 4,
-      name: "N. Silva",
-      title: "Farm Co-op Member",
-      message:
-        "Clean design and helpful info. Looking forward to more crops and more regions.",
-    },
-    {
-      id: 5,
-      name: "N. Silva",
-      title: "Farm Co-op Member",
-      message:
-        "Clean design and helpful info. Looking forward to more crops and more regions.",
-    },
-    {
-      id: 6,
-      name: "N. Silva",
-      title: "Farm Co-op Member",
-      message:
-        "Clean design and helpful info. Looking forward to more crops and more regions.",
-    },
-  ];
+  const normalizeRate = (value) => {
+    const n = Number.parseInt(value, 10);
+    if (!Number.isFinite(n)) return null;
+    if (n < 1 || n > 5) return null;
+    return n;
+  };
 
-  const feedbackCardBasis = 100 / VISIBLE_FEEDBACK_CARDS;
-  const shouldAutoSlide = feedback.length > VISIBLE_FEEDBACK_CARDS;
+  const fetchFeedback = async () => {
+    setIsFeedbackLoading(true);
+    setFeedbackError(null);
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/feedback/getAll`);
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data?.status) {
+        const message = data?.message || "Failed to load feedback";
+        setFeedbackError(message);
+        setFeedbackItems([]);
+        return;
+      }
+
+      const items = Array.isArray(data.result) ? data.result : [];
+      const mapped = items
+        .map((f) => ({
+          id: f?.id,
+          name: String(f?.name ?? "").trim() || "Anonymous",
+          message: String(f?.message ?? "").trim(),
+          rate: normalizeRate(f?.rate),
+          verified: Boolean(f?.verified),
+        }))
+        .filter((f) => f.message && f.verified);
+
+      setFeedbackItems(mapped);
+      setActiveFeedbackIndex(0);
+      setIsFeedbackTransitionEnabled(true);
+    } catch (error) {
+      console.error("getAll feedback request failed", error);
+      setFeedbackError("Could not reach server");
+      setFeedbackItems([]);
+    } finally {
+      setIsFeedbackLoading(false);
+    }
+  };
+
+  const submitFeedback = async (e) => {
+    e.preventDefault();
+
+    const name = String(feedbackForm.name ?? "").trim();
+    const message = String(feedbackForm.message ?? "").trim();
+    const rate = normalizeRate(feedbackForm.rate);
+
+    if (!name || !message || !rate) {
+      alert("Please enter name, message and rating (1-5)");
+      return;
+    }
+
+    setIsFeedbackSubmitting(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/feedback/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, message, rate }),
+      });
+
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.status) {
+        const msg = data?.message || "Failed to submit feedback";
+        alert(msg);
+        return;
+      }
+
+      alert(data?.message || "Feedback added successfully");
+      setFeedbackForm({ name: "", message: "", rate: "" });
+      setIsAddFeedbackOpen(false);
+
+      // Refresh the carousel from server so we show the actual stored feedback.
+      fetchFeedback();
+    } catch (error) {
+      console.error("create feedback request failed", error);
+      alert("Could not reach server");
+    } finally {
+      setIsFeedbackSubmitting(false);
+    }
+  };
+
+  // If there are fewer than 4 feedback items, we show each item exactly once
+  // (no repeating to “fill” the row). Card width is based on the actual count.
+  const visibleFeedbackCards = Math.min(VISIBLE_FEEDBACK_CARDS, feedbackItems.length || 1);
+  const feedbackCardBasis = 100 / visibleFeedbackCards;
+  const shouldAutoSlide = feedbackItems.length > VISIBLE_FEEDBACK_CARDS;
 
   const carouselSlides = (() => {
-    if (!feedback.length) return [];
-    if (shouldAutoSlide) return [...feedback, ...feedback.slice(0, VISIBLE_FEEDBACK_CARDS)];
+    if (!feedbackItems.length) return [];
+    if (shouldAutoSlide) return [...feedbackItems, ...feedbackItems.slice(0, VISIBLE_FEEDBACK_CARDS)];
 
-    // If there aren't enough feedback items, repeat to fill 5 cards.
-    return Array.from({ length: VISIBLE_FEEDBACK_CARDS }, (_, i) => feedback[i % feedback.length]);
+    // No auto-slide: render the real items once.
+    return feedbackItems;
   })();
+
+  useEffect(() => {
+    fetchFeedback();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!shouldAutoSlide) return;
@@ -178,7 +245,7 @@ function Home() {
 
   const onFeedbackTransitionEnd = () => {
     if (!shouldAutoSlide) return;
-    if (activeFeedbackIndex === feedback.length) {
+    if (activeFeedbackIndex === feedbackItems.length) {
       setIsFeedbackTransitionEnabled(false);
       setActiveFeedbackIndex(0);
       setTimeout(() => setIsFeedbackTransitionEnabled(true), 0);
@@ -310,6 +377,88 @@ function Home() {
         </div>
       )}
 
+      {/* ADD FEEDBACK POPUP */}
+      {isAddFeedbackOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="relative w-full max-w-md bg-white rounded-2xl p-6 shadow-2xl animate-fadeIn">
+            <button
+              onClick={closeAddFeedback}
+              className="absolute top-3 right-3 text-gray-400 hover:text-red-500 text-2xl font-bold transition"
+              disabled={isFeedbackSubmitting}
+            >
+              &times;
+            </button>
+
+            <div className="text-center mb-5">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
+                Add Feedback
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">Share your experience with other farmers</p>
+            </div>
+
+            <form onSubmit={submitFeedback} className="space-y-4">
+              <input
+                placeholder="Your Name"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
+                value={feedbackForm.name}
+                onChange={(e) => setFeedbackForm((p) => ({ ...p, name: e.target.value }))}
+                required
+              />
+
+              <textarea
+                placeholder="Your Feedback"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
+                rows={4}
+                value={feedbackForm.message}
+                onChange={(e) => setFeedbackForm((p) => ({ ...p, message: e.target.value }))}
+                required
+              />
+
+              <div className="w-full px-4 py-3 border rounded-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-gray-800">Rating</span>
+                  <span className="text-xs text-gray-500">
+                    {feedbackForm.rate ? `${feedbackForm.rate}/5` : "Select 1-5"}
+                  </span>
+                </div>
+
+                <div className="mt-2 flex items-center gap-1" role="radiogroup" aria-label="Select rating">
+                  {Array.from({ length: 5 }, (_, i) => {
+                    const value = i + 1;
+                    const selected = normalizeRate(feedbackForm.rate) === value;
+                    const filled = normalizeRate(feedbackForm.rate) && value <= normalizeRate(feedbackForm.rate);
+
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setFeedbackForm((p) => ({ ...p, rate: value }))}
+                        className={`text-2xl leading-none transition focus:outline-none focus:ring-2 focus:ring-green-500 rounded ${
+                          selected ? "ring-2 ring-green-500" : ""
+                        } ${filled ? "text-yellow-500" : "text-gray-300"}`}
+                        aria-label={`${value} star`}
+                        aria-checked={selected}
+                        role="radio"
+                      >
+                        ★
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isFeedbackSubmitting}
+                className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 py-2.5 rounded-lg text-white font-semibold transition transform hover:scale-105"
+              >
+                {isFeedbackSubmitting ? "Submitting..." : "Submit"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* FEATURES */}
       <section className="max-w-7xl mx-auto px-6 py-12">
         <div className="rounded-2xl bg-gradient-to-b from-green-50 to-white border border-green-100 px-6 py-10">
@@ -348,21 +497,43 @@ function Home() {
         </div>
       </section>
       {/* FEEDBACK */}
-      <section className="bg-gradient-to-b from-green-50 to-white py-12">
+      <section className="bg-gradient-to-b from-green-50 to-white py-14">
         <div className="max-w-7xl mx-auto px-6">
+          <div className="rounded-3xl border border-green-100 bg-white/70 backdrop-blur-sm shadow-sm px-6 py-10 md:px-10">
 
-          {/* Title */}
-          <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent">
-              Farmer Feedback
-            </h2>
-            <p className="text-sm text-gray-600 mt-2">
-              Real experiences from our farmers
-            </p>
-          </div>
+            {/* Title */}
+            <div className="mb-10 flex flex-col items-center gap-4 text-center md:flex-row md:items-end md:justify-between md:text-left">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent">
+                  Farmer Feedback
+                </h2>
+                <p className="text-sm text-gray-600 mt-2">
+                  Real experiences from our farmers
+                </p>
+              </div>
+
+              <button
+                onClick={openAddFeedback}
+                className="bg-green-600 hover:bg-green-700 px-6 py-2.5 rounded-full text-white font-semibold shadow-lg transition focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              >
+                Add Feedback
+              </button>
+            </div>
 
           {/* Auto Passing Feedback (4 cards in one row, no scroll) */}
-          {feedback.length > 0 && (
+          {isFeedbackLoading && (
+            <div className="flex justify-center">
+              <LoadingSpinner label="Loading feedback..." />
+            </div>
+          )}
+
+          {!isFeedbackLoading && feedbackError && (
+            <div className="flex justify-center">
+              <LoadingSpinner label={feedbackError} />
+            </div>
+          )}
+
+          {!isFeedbackLoading && !feedbackError && feedbackItems.length > 0 && (
             <div className="relative overflow-hidden">
               <div
                 className={`flex ${isFeedbackTransitionEnabled ? "transition-transform duration-700 ease-in-out" : ""}`}
@@ -375,18 +546,38 @@ function Home() {
                     className="px-2"
                     style={{ flex: `0 0 ${feedbackCardBasis}%` }}
                   >
-                    <div className="h-full bg-white/90 p-6 rounded-xl border border-green-100 shadow-md hover:shadow-xl hover:border-green-200 transform hover:scale-105 transition duration-300">
-                      <p className="text-sm text-gray-700">"{item.message}"</p>
-                      <div className="mt-4">
+                    <div className="group h-full bg-white/90 p-7 rounded-2xl border border-green-100 shadow-md hover:shadow-xl hover:border-green-200 transform hover:scale-[1.02] transition duration-300">
+                      <div className="flex items-start justify-between gap-4">
                         <p className="font-semibold text-gray-900">{item.name}</p>
-                        <p className="text-xs text-gray-500">{item.title}</p>
+                        <div className="shrink-0 flex items-center gap-0.5" aria-label="Rating">
+                          {Array.from({ length: 5 }, (_, i) => {
+                            const filled = item.rate && i < item.rate;
+                            return (
+                              <span
+                                key={i}
+                                className={filled ? "text-yellow-500" : "text-gray-300"}
+                              >
+                                ★
+                              </span>
+                            );
+                          })}
+                        </div>
                       </div>
+
+                      <p className="mt-4 text-sm text-gray-800 leading-relaxed">"{item.message}"</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           )}
+
+          {!isFeedbackLoading && !feedbackError && feedbackItems.length === 0 && (
+            <div className="flex justify-center">
+              <LoadingSpinner label="No feedback available" />
+            </div>
+          )}
+          </div>
         </div>
       </section>
 
