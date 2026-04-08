@@ -85,6 +85,14 @@ function Home() {
       alert("Please fill all required fields");
       return;
     }
+    if (name.length > 255) {
+      alert("Full name must be 255 characters or less");
+      return;
+    }
+    if (address.length > 255) {
+      alert("Address must be 255 characters or less");
+      return;
+    }
     if (!isValidEmail(email)) {
       alert("Please enter a valid email address");
       return;
@@ -182,6 +190,14 @@ function Home() {
 
     if (!name || !message || !rate) {
       alert("Please enter name, message and rating (1-5)");
+      return;
+    }
+    if (name.length > 255) {
+      alert("Name must be 255 characters or less");
+      return;
+    }
+    if (message.length > 255) {
+      alert("Message must be 255 characters or less");
       return;
     }
 
@@ -324,6 +340,9 @@ function Home() {
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
                 value={form.name}
                 onChange={onChange("name")}
+                minLength={1}
+                maxLength={255}
+                title="Full name must be 1 to 255 characters"
                 required
               />
 
@@ -345,6 +364,9 @@ function Home() {
                 value={form.address}
                 onChange={onChange("address")}
                 autoComplete="street-address"
+                minLength={1}
+                maxLength={255}
+                title="Address must be 1 to 255 characters"
                 required
               />
 
@@ -402,6 +424,9 @@ function Home() {
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
                 value={feedbackForm.name}
                 onChange={(e) => setFeedbackForm((p) => ({ ...p, name: e.target.value }))}
+                minLength={1}
+                maxLength={255}
+                title="Name must be 1 to 255 characters"
                 required
               />
 
@@ -411,6 +436,9 @@ function Home() {
                 rows={4}
                 value={feedbackForm.message}
                 onChange={(e) => setFeedbackForm((p) => ({ ...p, message: e.target.value }))}
+                minLength={1}
+                maxLength={255}
+                title="Message must be 1 to 255 characters"
                 required
               />
 
@@ -546,7 +574,7 @@ function Home() {
                     className="px-2"
                     style={{ flex: `0 0 ${feedbackCardBasis}%` }}
                   >
-                    <div className="group h-full bg-white/90 p-7 rounded-2xl border border-green-100 shadow-md hover:shadow-xl hover:border-green-200 transform hover:scale-[1.02] transition duration-300">
+                    <div className="group h-72 bg-white/90 p-7 rounded-2xl border border-green-100 shadow-md hover:shadow-xl hover:border-green-200 transform hover:scale-[1.02] transition duration-300 flex flex-col">
                       <div className="flex items-start justify-between gap-4">
                         <p className="font-semibold text-gray-900">{item.name}</p>
                         <div className="shrink-0 flex items-center gap-0.5" aria-label="Rating">
@@ -564,7 +592,13 @@ function Home() {
                         </div>
                       </div>
 
-                      <p className="mt-4 text-sm text-gray-800 leading-relaxed">"{item.message}"</p>
+                      <div
+                        className={`mt-4 text-sm text-gray-800 leading-relaxed flex-1 pr-2 ${
+                          String(item.message ?? "").length > 100 ? "overflow-y-auto" : "overflow-hidden"
+                        }`}
+                      >
+                        "{item.message}"
+                      </div>
                     </div>
                   </div>
                 ))}
