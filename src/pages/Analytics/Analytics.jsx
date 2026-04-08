@@ -571,12 +571,8 @@ function useProductSelection(products) {
 }
 
 function AnalyticsHeader() {
-  return (
-    <div>
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Market Price Analytics</h1>
-      <p className="text-sm text-gray-600 mt-1">Daily, weekly, and monthly price analysis by economic center.</p>
-    </div>
-  );
+  // Intentionally blank: title/subtitle removed per UI requirement.
+  return null;
 }
 
 function AnalyticsFilters({
@@ -586,18 +582,7 @@ function AnalyticsFilters({
   onProductSearchChange,
   clearProductSelection,
   sortedProducts,
-  selectedProductId,
-  selectedProductName,
-  productSearchNeedle,
 }) {
-  let productHint = "Please select a product";
-  if (selectedProductId) {
-    const selectedLabel = selectedProductName || `#${selectedProductId}`;
-    productHint = `Selected: ${selectedLabel}`;
-  } else if (productSearchNeedle) {
-    productHint = "Please select a product from the suggestions";
-  }
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full md:w-auto">
       <div>
@@ -643,8 +628,6 @@ function AnalyticsFilters({
             <option key={p.id} value={String(p?.name ?? p?.title ?? `#${p.id}`)} />
           ))}
         </datalist>
-
-        <p className="mt-1 text-xs text-gray-600">{productHint}</p>
       </div>
     </div>
   );
@@ -657,9 +640,6 @@ AnalyticsFilters.propTypes = {
   onProductSearchChange: PropTypes.func.isRequired,
   clearProductSelection: PropTypes.func.isRequired,
   sortedProducts: PropTypes.array.isRequired,
-  selectedProductId: PropTypes.string.isRequired,
-  selectedProductName: PropTypes.string.isRequired,
-  productSearchNeedle: PropTypes.string.isRequired,
 };
 
 function AnalyticsChartsGrid({
@@ -907,8 +887,7 @@ AnalyticsMain.propTypes = {
 function Analytics() {
   const { loading, errorMessage, marketPrices, economicCenters, products } = useAnalyticsRemoteData();
 
-  const { productSearch, selectedProductId, sortedProducts, selectedProductName, onProductSearchChange, clearProductSelection } =
-    useProductSelection(products);
+  const { productSearch, selectedProductId, sortedProducts, onProductSearchChange, clearProductSelection } = useProductSelection(products);
 
   const WEEKLY_WEEKS = 8;
   const MONTHLY_MONTHS = 12;
@@ -1045,9 +1024,6 @@ function Analytics() {
           onProductSearchChange={onProductSearchChange}
           clearProductSelection={clearProductSelection}
           sortedProducts={sortedProducts}
-          selectedProductId={selectedProductId}
-          selectedProductName={selectedProductName}
-          productSearchNeedle={productSearchNeedle}
         />
       </div>
 
@@ -1076,11 +1052,7 @@ function Analytics() {
             weeklySeries={weeklySeries}
             monthlySeries={monthlySeries}
           />
-        ) : (
-          <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-700">
-            Please select a product to view charts.
-          </div>
-        )}
+        ) : null}
       </AnalyticsMain>
     </div>
   );
