@@ -23,14 +23,64 @@ function Home() {
   };
 
   const onChange = (key) => (e) => {
-    setForm((prev) => ({ ...prev, [key]: e.target.value }));
+    const rawValue = e.target.value;
+
+    // Registration validation (client-side)
+    // - Phone must be exactly 10 digits.
+    // - While typing, we keep only digits and limit length to 10 so the form state
+    //   can never contain invalid characters.
+    if (key === "phone") {
+      const digitsOnly = String(rawValue ?? "").replace(/\D/g, "").slice(0, 10);
+      setForm((prev) => ({ ...prev, [key]: digitsOnly }));
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, [key]: rawValue }));
+  };
+
+  const isValidEmail = (value) => {
+    const v = String(value ?? "").trim();
+    // Simple, practical email validation: user@domain.tld (no spaces).
+    // (We also use HTML input type=email + pattern for immediate browser feedback.)
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  };
+
+  const isValidPhone10Digits = (value) => {
+    const v = String(value ?? "").trim();
+    // Exactly 10 numeric digits.
+    return /^\d{10}$/.test(v);
   };
 
   const submitRegister = async (e) => {
     e.preventDefault();
 
+    // Submit-time validation (final gate)
+    // Even though inputs have `required`/`pattern`, we validate again here so the API
+    // is only called with clean, expected values.
+
+    const name = String(form.name ?? "").trim();
+    const email = String(form.email ?? "").trim();
+    const address = String(form.address ?? "").trim();
+    const phone = String(form.phone ?? "").trim();
+
+    if (!name || !email || !address || !phone) {
+      alert("Please fill all required fields");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      alert("Please enter a valid email address");
+      return;
+    }
+    if (!isValidPhone10Digits(phone)) {
+      alert("Phone number must be exactly 10 digits");
+      return;
+    }
+
     const payload = {
-      ...form,
+      name,
+      email,
+      address,
+      phone,
       role_id: 2,
     };
 
@@ -216,6 +266,9 @@ function Home() {
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
                 value={form.email}
                 onChange={onChange("email")}
+                pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                title="Enter a valid email address (example: name@example.com)"
+                autoComplete="email"
                 required
               />
 
@@ -224,14 +277,22 @@ function Home() {
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
                 value={form.address}
                 onChange={onChange("address")}
+                autoComplete="street-address"
                 required
               />
 
               <input
+                type="tel"
                 placeholder="Phone Number"
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
                 value={form.phone}
                 onChange={onChange("phone")}
+                inputMode="numeric"
+                pattern="\d{10}"
+                title="Phone number must be exactly 10 digits"
+                minLength={10}
+                maxLength={10}
+                autoComplete="tel"
                 required
               />
 
