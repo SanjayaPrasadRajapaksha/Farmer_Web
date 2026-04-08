@@ -242,18 +242,29 @@ function MarketPrice() {
       const productId = row?.product_id ?? row?.Product?.id;
       if (productId == null) continue;
 
-      const existing = map.get(productId);
+      // Use string keys to avoid number-vs-string mismatches when looking up by `product.id`.
+      const productKey = String(productId);
+
+      const existing = map.get(productKey);
       if (!existing) {
-        map.set(productId, row);
+        map.set(productKey, row);
         continue;
       }
 
       const existingTime = Math.max(toTime(existing?.updatedAt), toTime(existing?.createdAt));
       const nextTime = Math.max(toTime(row?.updatedAt), toTime(row?.createdAt));
-      if (nextTime >= existingTime) map.set(productId, row);
+      if (nextTime >= existingTime) map.set(productKey, row);
     }
     return map;
   }, [marketPrices, selectedDate, selectedEconomicCenterId]);
+
+  // Only show products that have a price record for the selected date + center.
+  // (If a product has no price, it should not appear in the filtered results.)
+  const pricedFilteredProducts = useMemo(() => {
+    const list = asArray(filteredProducts);
+    if (!selectedDate) return [];
+    return list.filter((p) => priceByProductIdForDate.has(String(p?.id ?? "")));
+  }, [filteredProducts, priceByProductIdForDate, selectedDate]);
 
   if (isLoading) {
     return <LoadingSpinner label="Loading market prices..." />;
@@ -344,7 +355,7 @@ function MarketPrice() {
           </div>
         </div>
 
-        {filteredProducts.length === 0 ? (
+        {pricedFilteredProducts.length === 0 ? (
           <div className="bg-white border border-gray-200 rounded-2xl p-6 text-gray-700">
             No products match your filters.
           </div>
@@ -365,11 +376,11 @@ function MarketPrice() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
+            {pricedFilteredProducts.map((product) => (
               <ProductPriceCard
                 key={product.id}
                 product={product}
-                latestPrice={priceByProductIdForDate.get(product.id)}
+                latestPrice={priceByProductIdForDate.get(String(product.id))}
               />
             ))}
           </div>
