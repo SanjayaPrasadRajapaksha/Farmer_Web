@@ -325,7 +325,7 @@ function Home() {
             {/* Header */}
             <div className="text-center mb-5">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
-                Customer Registration
+                Farmer Registration
               </h2>
               <p className="text-sm text-gray-500 mt-1">
                 Sign up to get daily market price updates via email
