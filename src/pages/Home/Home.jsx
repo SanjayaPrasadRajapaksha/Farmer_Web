@@ -325,7 +325,7 @@ function Home() {
             {/* Header */}
             <div className="text-center mb-5">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
-                Customer Registration
+                Farmer Registration
               </h2>
               <p className="text-sm text-gray-500 mt-1">
                 Sign up to get daily market price updates via email
@@ -562,7 +562,7 @@ function Home() {
           )}
 
           {!isFeedbackLoading && !feedbackError && feedbackItems.length > 0 && (
-            <div className="relative overflow-hidden">
+            <div className="relative overflow-x-hidden overflow-y-visible py-2">
               <div
                 className={`flex ${isFeedbackTransitionEnabled ? "transition-transform duration-700 ease-in-out" : ""}`}
                 style={{ transform: `translateX(-${activeFeedbackIndex * feedbackCardBasis}%)` }}
@@ -571,10 +571,10 @@ function Home() {
                 {carouselSlides.map((item, idx) => (
                   <div
                     key={`${item.id}-${idx}`}
-                    className="px-2"
+                    className="px-2 py-2"
                     style={{ flex: `0 0 ${feedbackCardBasis}%` }}
                   >
-                    <div className="group h-72 bg-white/90 p-7 rounded-2xl border border-green-100 shadow-md hover:shadow-xl hover:border-green-200 transform hover:scale-[1.02] transition duration-300 flex flex-col">
+                    <div className="group h-72 min-h-0 bg-white/90 p-7 rounded-2xl border border-green-100 shadow-md hover:shadow-xl hover:border-green-200 transform hover:scale-[1.02] transition duration-300 flex flex-col">
                       <div className="flex items-start justify-between gap-4">
                         <p className="font-semibold text-gray-900">{item.name}</p>
                         <div className="shrink-0 flex items-center gap-0.5" aria-label="Rating">
@@ -593,7 +593,7 @@ function Home() {
                       </div>
 
                       <div
-                        className={`mt-4 text-sm text-gray-800 leading-relaxed flex-1 pr-2 ${
+                        className={`mt-4 text-sm text-gray-800 leading-relaxed flex-1 min-h-0 pr-2 ${
                           String(item.message ?? "").length > 100 ? "overflow-y-auto" : "overflow-hidden"
                         }`}
                       >

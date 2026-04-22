@@ -28,6 +28,20 @@ function toTime(value) {
   return Number.isFinite(t) ? t : -Infinity;
 }
 
+function isTrueFlag(value) {
+  if (value === true) return true;
+  if (value === false || value == null) return false;
+  if (value === 1 || value === "1") return true;
+  if (typeof value === "string") return value.trim().toLowerCase() === "true";
+  return false;
+}
+
+function isVerifiedMarketPriceRow(row) {
+  // Backend field is `verify` (boolean). Some clients may send/expect `status` or `isVerify`.
+  const flag = row?.verify ?? row?.status ?? row?.isVerify;
+  return isTrueFlag(flag);
+}
+
 function normalizeCenterName(name) {
   return String(name ?? "")
     .toLowerCase()
@@ -180,7 +194,7 @@ function MarketPrice() {
         }
 
         setProducts(asArray(productsJson?.result));
-        setMarketPrices(asArray(pricesJson?.result));
+        setMarketPrices(asArray(pricesJson?.result).filter(isVerifiedMarketPriceRow));
         setCategories(asArray(categoriesJson?.result));
         setEconomicCenters(asArray(economicCentersJson?.result));
       } catch (e) {

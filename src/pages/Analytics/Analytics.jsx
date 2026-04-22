@@ -217,6 +217,9 @@ function computeDailySeries({
   for (let i = 0; i < daysCount; i += 1) {
     const date = addDaysIsoUtc(fromDate, i);
     const cur = dailyMap.get(date);
+    // DAILY TREND LOGIC:
+    // For each date in the selected inclusive range, plot that day's direct price per center.
+    // If a center has no record for a day, keep it as null so the line chart shows a gap.
     out.push({
       date,
       aAvg: cur?.aVal ?? null,
@@ -858,7 +861,7 @@ AnalyticsChartsGrid.propTypes = {
   monthlySeries: PropTypes.array.isRequired,
 };
 
-function AnalyticsMain({ loading, errorMessage, children }) {
+function AnalyticsMain({ errorMessage, children }) {
   return (
     <>
       {errorMessage ? (
@@ -867,25 +870,18 @@ function AnalyticsMain({ loading, errorMessage, children }) {
         </div>
       ) : null}
 
-      {loading ? (
-        <div className="mt-8">
-          <LoadingSpinner label="Loading analytics..." />
-        </div>
-      ) : (
-        children
-      )}
+      {children}
     </>
   );
 }
 
 AnalyticsMain.propTypes = {
-  loading: PropTypes.bool.isRequired,
   errorMessage: PropTypes.string.isRequired,
   children: PropTypes.node,
 };
 
 function Analytics() {
-  const { loading, errorMessage, marketPrices, economicCenters, products } = useAnalyticsRemoteData();
+  const { errorMessage, marketPrices, economicCenters, products } = useAnalyticsRemoteData();
 
   const { productSearch, selectedProductId, sortedProducts, onProductSearchChange, clearProductSelection } = useProductSelection(products);
 
@@ -1027,7 +1023,7 @@ function Analytics() {
         />
       </div>
 
-      <AnalyticsMain loading={loading} errorMessage={errorMessage}>
+      <AnalyticsMain errorMessage={errorMessage}>
         {selectedProductId ? (
           <AnalyticsChartsGrid
             WEEKLY_WEEKS={WEEKLY_WEEKS}
