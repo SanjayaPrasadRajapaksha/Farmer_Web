@@ -2,16 +2,16 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 import {
-    Bar,
-    BarChart,
-    CartesianGrid,
-    Legend,
-    Line,
-    LineChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 import LoadingSpinner from "../../components/Loading/LoadingSpinner";
 
@@ -217,6 +217,9 @@ function computeDailySeries({
   for (let i = 0; i < daysCount; i += 1) {
     const date = addDaysIsoUtc(fromDate, i);
     const cur = dailyMap.get(date);
+    // DAILY TREND LOGIC:
+    // For each date in the selected inclusive range, plot that day's direct price per center.
+    // If a center has no record for a day, keep it as null so the line chart shows a gap.
     out.push({
       date,
       aAvg: cur?.aVal ?? null,

@@ -7,10 +7,6 @@ import LoadingSpinner from "../../components/Loading/LoadingSpinner";
 
 const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || "http://localhost:8000";
 
-// Date utilities
-// - We use ISO date strings (YYYY-MM-DD) throughout, because the API returns dates in that format.
-// - `formatLocalIsoDate` matches the browser's date input expectations.
-// - `formatIsoDateUtc` / `addDaysIsoUtc` are used when adding/subtracting days safely.
 function formatIsoDateUtc(date) {
   const y = date.getUTCFullYear();
   const m = String(date.getUTCMonth() + 1).padStart(2, "0");
@@ -26,7 +22,7 @@ function formatLocalIsoDate(date) {
 }
 
 function addDaysIsoUtc(dateStr, deltaDays) {
-  // Add/subtract whole days using UTC to avoid timezone/DST edge cases.
+ 
   const base = new Date(`${dateStr}T00:00:00.000Z`);
   if (Number.isNaN(base.getTime())) return "";
   base.setUTCDate(base.getUTCDate() + deltaDays);
@@ -41,9 +37,6 @@ function Report() {
   const [economicCenters, setEconomicCenters] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  // Date picker default
-  // We always default to the current (local) date so the user immediately sees "today".
-  // Even if there are no records for today, the user can still keep the date as today.
   const [selectedDate, setSelectedDate] = useState(() => formatLocalIsoDate(new Date()));
 
   const [pageSize, setPageSize] = useState(10);
@@ -70,7 +63,7 @@ function Report() {
   }, [categories]);
 
   const sortedCategories = useMemo(() => {
-    // UI sort: show "Vegetables" categories first, then alphabetical.
+    
     const isVegetable = (category) => String(category?.name ?? "").toLowerCase().includes("veget");
 
     return [...categories].sort((a, b) => {
@@ -82,7 +75,7 @@ function Report() {
   }, [categories]);
 
   const fetchAll = useCallback(async () => {
-    // Fetch all required reference + market price data in parallel.
+    
     setLoading(true);
     setErrorMessage("");
     try {
@@ -110,7 +103,7 @@ function Report() {
   }, [fetchAll]);
 
   const economicCenterIdByName = useMemo(() => {
-    // Map of economic center name -> id (lowercased) for quick lookup.
+    
     const map = new Map();
     for (const e of economicCenters) {
       const name = String(e.name ?? e.location ?? "").trim();
@@ -122,7 +115,7 @@ function Report() {
 
   const findCenterId = useCallback(
     (needle) => {
-      // Find a center id by partial name match (case-insensitive).
+      
       const n = String(needle).toLowerCase();
       for (const [name, id] of economicCenterIdByName.entries()) {
         if (name.includes(n)) return id;
@@ -136,7 +129,7 @@ function Report() {
   const tambuttegamaCenterId = useMemo(() => findCenterId("tambuttegama"), [findCenterId]);
 
   const availableDates = useMemo(() => {
-    // Collect unique available dates from market prices (used for min/max and validation).
+    
     const set = new Set();
     for (const r of marketPrices) {
       if (r?.date) set.add(String(r.date));
@@ -147,14 +140,13 @@ function Report() {
   const availableDatesSet = useMemo(() => new Set(availableDates), [availableDates]);
 
   useEffect(() => {
-    // If the user clears the date input manually, fall back to current date.
+    
     if (selectedDate) return;
     setSelectedDate(formatLocalIsoDate(new Date()));
   }, [availableDates, availableDatesSet, selectedDate]);
 
   const priceIndex = useMemo(() => {
-    // Build an in-memory index for O(1) price lookups:
-    // key = productId|centerId|date  ->  priceNumber
+   
     const map = new Map();
     for (const r of marketPrices) {
       const productId = r?.product_id;
@@ -176,13 +168,12 @@ function Report() {
   const tomorrowDate = useMemo(() => (selectedDate ? addDaysIsoUtc(selectedDate, 1) : ""), [selectedDate]);
 
   const tableRows = useMemo(() => {
-    // Main table rows are built for a single selected date.
-    // We compare Dambulla vs Tambuttegama and compute a 7-day average prediction for tomorrow.
+   
     if (!selectedDate) return [];
     if (!dambullaCenterId || !tambuttegamaCenterId) return [];
 
     const getPrice = (productId, centerId, dateStr) => {
-      // Safe price fetch from the prebuilt index.
+    
       if (!productId || !centerId || !dateStr) return null;
       const key = `${productId}|${centerId}|${dateStr}`;
       return priceIndex.has(key) ? priceIndex.get(key) : null;
@@ -207,7 +198,7 @@ function Report() {
     const productIds = new Set();
 
     for (const r of marketPrices) {
-      // Only include products that have a price for the selected date at either center.
+     
       if (!r?.date || String(r.date) !== String(selectedDate)) continue;
       const centerId = r?.economic_center_location_id;
       if (centerId !== dambullaCenterId && centerId !== tambuttegamaCenterId) continue;
@@ -243,7 +234,7 @@ function Report() {
       });
     }
 
-    // Sort category-wise (Vegetables first), then by highest selected-date price.
+    
     rowsOut.sort((a, b) => {
       const aCat = String(a.categoryName ?? "-");
       const bCat = String(b.categoryName ?? "-");
@@ -297,18 +288,18 @@ function Report() {
   }, [tableRows, filters]);
 
   const totalPages = useMemo(() => {
-    // Pagination derived values.
+    
     const size = Math.max(1, Number(pageSize) || 10);
     return Math.max(1, Math.ceil(filteredTableRows.length / size));
   }, [filteredTableRows.length, pageSize]);
 
   useEffect(() => {
-    // Keep current page within bounds whenever filters/pageSize change.
+    
     setCurrentPage((p) => Math.min(Math.max(1, p), totalPages));
   }, [totalPages]);
 
   const pagedTableRows = useMemo(() => {
-    // Slice only the rows for the current page.
+    
     const size = Math.max(1, Number(pageSize) || 10);
     const start = (currentPage - 1) * size;
     return filteredTableRows.slice(start, start + size);
