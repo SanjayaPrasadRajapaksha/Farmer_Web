@@ -49,6 +49,7 @@ function Report() {
 
   const [differenceMode, setDifferenceMode] = useState("D_MINUS_T");
   const [predDifferenceMode, setPredDifferenceMode] = useState("D_MINUS_T");
+  const [productSortOrder, setProductSortOrder] = useState("none"); // "none", "asc", "desc"
 
   const productById = useMemo(() => {
     const map = new Map();
@@ -314,7 +315,7 @@ function Report() {
     const nameNeedle = String(filters.productName || "").trim().toLowerCase();
     const categoryNeedle = String(filters.categoryId || "");
 
-    return tableRows.filter((r) => {
+    let filtered = tableRows.filter((r) => {
       if (nameNeedle) {
         const n = String(r.name ?? "").toLowerCase();
         if (!n.includes(nameNeedle)) return false;
@@ -326,7 +327,16 @@ function Report() {
 
       return true;
     });
-  }, [tableRows, filters]);
+
+    // Apply product name sorting based on sort order.
+    if (productSortOrder === "asc") {
+      filtered = [...filtered].sort((a, b) => String(a.name ?? "").localeCompare(String(b.name ?? "")));
+    } else if (productSortOrder === "desc") {
+      filtered = [...filtered].sort((a, b) => String(b.name ?? "").localeCompare(String(a.name ?? "")));
+    }
+
+    return filtered;
+  }, [tableRows, filters, productSortOrder]);
 
   const totalPages = useMemo(() => {
     
@@ -711,7 +721,43 @@ function Report() {
             <table className="min-w-full text-sm text-gray-700">
               <thead className="bg-gradient-to-r bg-green-900 text-white">
                 <tr>
-                  <th className="text-left px-4 py-3 border-b border-white/15 font-semibold whitespace-nowrap">Product</th>
+                  <th className="text-left px-4 py-3 border-b border-white/15 font-semibold whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <span>Product</span>
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          className={`px-2 py-1 rounded text-sm ${
+                            productSortOrder === "asc" ? "bg-green-600 text-white" : "bg-white/20 text-white"
+                          }`}
+                          onClick={() => setProductSortOrder("asc")}
+                          title="Sort A-Z"
+                        >
+                          <ArrowUp size={14} className="inline" />
+                        </button>
+                        <button
+                          type="button"
+                          className={`px-2 py-1 rounded text-sm ${
+                            productSortOrder === "desc" ? "bg-green-600 text-white" : "bg-white/20 text-white"
+                          }`}
+                          onClick={() => setProductSortOrder("desc")}
+                          title="Sort Z-A"
+                        >
+                          <ArrowDown size={14} className="inline" />
+                        </button>
+                        <button
+                          type="button"
+                          className={`px-2 py-1 rounded text-sm ${
+                            productSortOrder === "none" ? "bg-green-600 text-white" : "bg-white/20 text-white"
+                          }`}
+                          onClick={() => setProductSortOrder("none")}
+                          title="Default sort"
+                        >
+                          –
+                        </button>
+                      </div>
+                    </div>
+                  </th>
                   <th className="text-left px-4 py-3 border-b border-white/15 font-semibold whitespace-nowrap">Dambulla ({selectedDate || "-"})</th>
                   <th className="text-left px-4 py-3 border-b border-white/15 font-semibold whitespace-nowrap">Tambuttegama ({selectedDate || "-"})</th>
                   <th className="text-left px-4 py-3 border-b border-white/15 font-semibold whitespace-nowrap">
