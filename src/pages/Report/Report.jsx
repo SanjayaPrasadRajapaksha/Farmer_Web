@@ -199,6 +199,37 @@ function Report() {
       return sum / count;
     };
 
+    const compute7DayPredictionWithMeta = (productId, centerId, dateStr) => {
+      // Compute 7-day average and return metadata for confidence.
+      // Returns { value, count, stddev } where `count` is number of days used (0..7).
+      if (!productId || !centerId || !dateStr) return { value: null, count: 0 };
+
+      let sum = 0;
+      let count = 0;
+      const values = [];
+      for (let i = 0; i < 7; i++) {
+        const d = addDaysIsoUtc(dateStr, -i);
+        if (!d) return { value: null, count: 0 };
+        const p = getPrice(productId, centerId, d);
+        if (p === null) continue;
+        sum += p;
+        values.push(p);
+        count += 1;
+      }
+
+      if (count === 0) return { value: null, count: 0 };
+      const avg = sum / count;
+
+      let stddev = 0;
+      if (values.length > 1) {
+        const mean = avg;
+        const s = values.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / values.length;
+        stddev = Math.sqrt(s);
+      }
+
+      return { value: avg, count, stddev };
+    };
+
     const productIds = new Set();
 
     for (const r of marketPrices) {
@@ -223,8 +254,11 @@ function Report() {
       const dToday = getPrice(productId, dambullaCenterId, selectedDate);
       const tToday = getPrice(productId, tambuttegamaCenterId, selectedDate);
 
-      const dPred = compute7DayPrediction(productId, dambullaCenterId, selectedDate);
-      const tPred = compute7DayPrediction(productId, tambuttegamaCenterId, selectedDate);
+      const dPredMeta = compute7DayPredictionWithMeta(productId, dambullaCenterId, selectedDate);
+      const tPredMeta = compute7DayPredictionWithMeta(productId, tambuttegamaCenterId, selectedDate);
+      const dPred = dPredMeta.value;
+      const tPred = tPredMeta.value;
+      const predCount = Math.min(dPredMeta.count || 0, tPredMeta.count || 0);
 
       rowsOut.push({
         productId: productIdStr,
@@ -235,6 +269,9 @@ function Report() {
         tToday,
         dPred,
         tPred,
+        dPredCount: dPredMeta.count,
+        tPredCount: tPredMeta.count,
+        predCount,
       });
     }
 
@@ -354,6 +391,15 @@ function Report() {
     return dNum > tNum ? "D" : "T";
   };
 
+  const predConfidenceBadge = (count) => {
+    // Map count (0..7) to a simple badge: N/A / Low / Medium / High.
+    const c = Number(count || 0);
+    if (c === 0) return { label: "N/A", className: "bg-gray-100 text-gray-700" };
+    if (c <= 2) return { label: "Low", className: "bg-red-100 text-red-800" };
+    if (c <= 4) return { label: "Medium", className: "bg-yellow-100 text-yellow-800" };
+    return { label: "High", className: "bg-green-100 text-green-800" };
+  };
+
   const getDiff = (leftValue, rightValue) => {
     const leftNum = toFiniteNumberOrNull(leftValue);
     const rightNum = toFiniteNumberOrNull(rightValue);
@@ -421,6 +467,10 @@ function Report() {
 
       const PDF_GREEN = [22, 163, 74];
       const PDF_RED = [220, 38, 38];
+      const PDF_YELLOW = [234, 179, 8];
+      const PDF_LIGHT_GREEN = [236, 253, 245];
+      const PDF_LIGHT_RED = [255, 235, 238];
+      const PDF_LIGHT_YELLOW = [255, 249, 196];
 
       const pdfCell = (content, textColor) => {
         const contentStr = content === null || content === undefined ? "-" : String(content);
@@ -435,6 +485,22 @@ function Report() {
         if (num === 0) return pdfCell(absText);
         const signText = (num > 0 ? "+" : "-") + absText;
         return pdfCell(signText, num > 0 ? PDF_GREEN : PDF_RED);
+      };
+
+      const pdfPredSignedDiffCell = (diff, predCount) => {
+        const num = toFiniteNumberOrNull(diff);
+        if (num === null) return pdfCell("-");
+        const absText = formatPrice(Math.abs(num));
+        const signText = (num > 0 ? "+" : num < 0 ? "-" : "") + absText;
+
+        let fill = null;
+        if (!predCount || predCount <= 2) fill = PDF_LIGHT_RED;
+        else if (predCount <= 4) fill = PDF_LIGHT_YELLOW;
+        else fill = PDF_LIGHT_GREEN;
+
+        const textColor = num > 0 ? PDF_GREEN : num < 0 ? PDF_RED : [55, 65, 81];
+        if (!fill) return pdfCell(signText, textColor);
+        return { content: signText, styles: { textColor, fillColor: fill } };
       };
 
       const body = filteredTableRows.map((r) => {
@@ -474,7 +540,7 @@ function Report() {
           pdfSignedDiffCell(getDifferenceByMode(r.dToday, r.tToday)),
           pdfCell(dPredText, dPredColor),
           pdfCell(tPredText, tPredColor),
-          pdfSignedDiffCell(getPredDifferenceByMode(r.dPred, r.tPred)),
+          pdfPredSignedDiffCell(getPredDifferenceByMode(r.dPred, r.tPred), r.predCount),
         ];
       });
 
@@ -756,7 +822,21 @@ function Report() {
                           </span>
                         </td>
                         <td className="px-4 py-3 border-b border-gray-100 whitespace-nowrap">
-                          {renderSignedDiff(predDiffDT)}
+                          {predDiffDT === null ? (
+                            <span>-</span>
+                          ) : (
+                            (() => {
+                              const badge = predConfidenceBadge(r.predCount);
+                              const signed = (predDiffDT > 0 ? "+" : predDiffDT < 0 ? "-" : "") + formatPrice(Math.abs(predDiffDT));
+                              const textCls = predDiffDT > 0 ? "text-green-700" : predDiffDT < 0 ? "text-red-700" : "text-gray-700";
+                              return (
+                                <span className="inline-flex items-center gap-3">
+                                  <span className={textCls}>{signed}</span>
+                                  <span className={`${badge.className} text-xs font-medium px-2 py-0.5 rounded-full`}>{badge.label}</span>
+                                </span>
+                              );
+                            })()
+                          )}
                         </td>
                       </tr>
                     );
