@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 import marketImage from "../../assets/market.webp";
 import LoadingSpinner from "../../components/Loading/LoadingSpinner";
+import { fuzzyFilterAndSort } from "../../utils/fuzzySearch";
+import { highlightMatchedText } from "../../utils/highlightMatch";
 
 const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -58,7 +60,7 @@ function isDambullaCenter(center) {
   return normalizeCenterName(center?.name) === "dambulla";
 }
 
-function ProductPriceCard({ product, latestPrice }) {
+function ProductPriceCard({ product, latestPrice, searchQuery }) {
   const imageUrl = product?.imageURL;
 
   return (
@@ -81,7 +83,7 @@ function ProductPriceCard({ product, latestPrice }) {
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="text-base font-semibold text-gray-900">{product?.name || "Unnamed product"}</h3>
+            <h3 className="text-base font-semibold text-gray-900">{highlightMatchedText(product?.name ?? "Unnamed product", searchQuery)}</h3>
             <p className="text-xs text-gray-500 mt-1">Unit: {product?.unit ?? "—"}</p>
           </div>
           <div className="text-right">
@@ -227,15 +229,18 @@ function MarketPrice() {
   }, [allowedEconomicCenters, selectedEconomicCenterId]);
 
   const filteredProducts = useMemo(() => {
-    const q = toLowerSafe(searchQuery).trim();
-    return asArray(products).filter((p) => {
-      const matchesCategory = selectedCategoryId
-        ? String(p?.category_id ?? "") === String(selectedCategoryId)
-        : true;
-
-      const matchesSearch = q ? toLowerSafe(p?.name).includes(q) : true;
-      return matchesCategory && matchesSearch;
+    const q = String(searchQuery || "").trim();
+    // First filter by category if provided
+    let results = asArray(products).filter((p) => {
+      return selectedCategoryId ? String(p?.category_id ?? "") === String(selectedCategoryId) : true;
     });
+
+    // If search query provided, use fuzzy search on product name
+    if (q) {
+      results = fuzzyFilterAndSort(results, q, ["name"]);
+    }
+
+    return results;
   }, [products, searchQuery, selectedCategoryId]);
 
   const pricesForSelectedDate = useMemo(() => {
@@ -417,6 +422,7 @@ function MarketPrice() {
                   key={product.id}
                   product={product}
                   latestPrice={priceByProductIdForDate.get(String(product.id))}
+                  searchQuery={searchQuery}
                 />
               ))}
             </div>

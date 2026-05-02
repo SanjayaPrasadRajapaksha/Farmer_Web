@@ -195,7 +195,9 @@ function buildWeeklySeriesFromDailyMap(dailyMap, startDate, weeksCount) {
   }
   return out;
 }
-
+// DAILY TREND LOGIC:
+// For each date in the selected inclusive range, plot that day's direct price per center.
+// If a center has no record for a day, keep it as null so the line chart shows a gap.
 function computeDailySeries({
   rows,
   centerAId,
@@ -217,9 +219,7 @@ function computeDailySeries({
   for (let i = 0; i < daysCount; i += 1) {
     const date = addDaysIsoUtc(fromDate, i);
     const cur = dailyMap.get(date);
-    // DAILY TREND LOGIC:
-    // For each date in the selected inclusive range, plot that day's direct price per center.
-    // If a center has no record for a day, keep it as null so the line chart shows a gap.
+
     out.push({
       date,
       aAvg: cur?.aVal ?? null,
