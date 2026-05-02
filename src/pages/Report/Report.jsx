@@ -181,18 +181,22 @@ function Report() {
 
     const compute7DayPrediction = (productId, centerId, dateStr) => {
       // 7-day prediction = average of the last 7 *consecutive* days INCLUDING the selected date.
-      // If any day is missing (no data), return null to avoid misleading predictions.
+      // If some days are missing, average only the available records in that 7-day window.
       if (!productId || !centerId || !dateStr) return null;
 
       let sum = 0;
+      let count = 0;
       for (let i = 0; i < 7; i++) {
         const d = addDaysIsoUtc(dateStr, -i);
         if (!d) return null;
         const p = getPrice(productId, centerId, d);
-        if (p === null) return null;
+        if (p === null) continue;
         sum += p;
+        count += 1;
       }
-      return sum / 7;
+
+      if (count === 0) return null;
+      return sum / count;
     };
 
     const productIds = new Set();
