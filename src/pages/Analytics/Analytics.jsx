@@ -2,18 +2,17 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Legend,
+    Line,
+    LineChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
 } from "recharts";
-import LoadingSpinner from "../../components/Loading/LoadingSpinner";
 
 const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -715,7 +714,7 @@ function AnalyticsChartsGrid({
             <LineChart data={dailySeries} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => (v ? Math.round(v) : 0)} />
+              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => (v ? `LKR ${Math.round(v)}` : "LKR 0")} />
               <Tooltip formatter={(value) => formatLKR(value)} labelFormatter={(label) => `Date: ${label}`} />
               <Legend />
               <Line
@@ -771,7 +770,7 @@ function AnalyticsChartsGrid({
             <BarChart data={weeklySeries} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="week" tick={{ fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={55} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => (v ? Math.round(v) : 0)} />
+              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => (v ? `LKR ${Math.round(v)}` : "LKR 0")} />
               <Tooltip formatter={(value) => formatLKR(value)} labelFormatter={(label) => `Week starting: ${label}`} />
               <Legend />
               <Bar
@@ -817,7 +816,7 @@ function AnalyticsChartsGrid({
             <BarChart data={monthlySeries} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" tick={{ fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={55} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => (v ? Math.round(v) : 0)} />
+              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => (v ? `LKR ${Math.round(v)}` : "LKR 0")} />
               <Tooltip formatter={(value) => formatLKR(value)} labelFormatter={(label) => `Month: ${label}`} />
               <Legend />
               <Bar
@@ -1050,7 +1049,7 @@ function Analytics() {
           />
         ) : (
           <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
-            <LoadingSpinner label="Please select product" />
+            <p className="text-center text-gray-500 py-8">Please select a product to view analytics</p>
           </div>
         )}
       </AnalyticsMain>
