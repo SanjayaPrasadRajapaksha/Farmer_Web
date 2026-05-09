@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import homeImage from "../../assets/home.jpg";
+import homeImage02 from "../../assets/home02.png";
+import homeImage03 from "../../assets/home03.png";
+import homeImage04 from "../../assets/home04.png";
 import LoadingSpinner from "../../components/Loading/LoadingSpinner";
 
 function Home() {
@@ -524,6 +527,72 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* FIELD STORIES */}
+      <section className="max-w-7xl mx-auto px-6 pb-14">
+        <div className="rounded-3xl border border-green-100 bg-white p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-green-700">From the field</p>
+              <h2 className="mt-2 text-3xl md:text-4xl font-bold text-gray-900">Farmers, markets, and daily progress</h2>
+              <p className="mt-2 text-sm md:text-base text-gray-600 max-w-2xl">
+                A quick look at the real farming environment this platform is built for.
+                We bring these day-to-day market moments into actionable insights.
+              </p>
+            </div>
+            <Link
+              to="/aboutus"
+              className="inline-flex items-center justify-center rounded-full border border-green-200 bg-green-50 px-5 py-2.5 text-sm font-semibold text-green-700 transition hover:bg-green-100"
+            >
+              Learn more about us
+            </Link>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-12 gap-5">
+            <div className="md:col-span-7 relative overflow-hidden rounded-3xl border border-green-100 bg-emerald-950">
+              <img
+                src={homeImage03}
+                alt="Fresh produce display in a market"
+                className="h-72 md:h-[26rem] w-full object-contain md:object-cover transition duration-700 hover:scale-105"
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/70 via-transparent to-transparent" />
+
+              <div className="absolute left-5 bottom-5 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3 text-white shadow-lg">
+                <p className="text-xs uppercase tracking-[0.16em] text-emerald-100">Daily view</p>
+                <p className="mt-1 text-sm md:text-base font-semibold">Real market activity across regions</p>
+              </div>
+            </div>
+
+            <div className="md:col-span-5 relative min-h-[21rem] md:min-h-[26rem]">
+              <div className="absolute left-0 right-8 top-0 rounded-2xl overflow-hidden border border-green-100 bg-white shadow-xl rotate-[-1.8deg] transition hover:rotate-0">
+                <img
+                  src={homeImage02}
+                  alt="Farm produce prepared for trade"
+                  className="h-48 md:h-56 w-full object-cover"
+                />
+                <div className="px-4 py-3 bg-white">
+                  <p className="text-xs uppercase tracking-[0.12em] text-green-700">Produce ready</p>
+                  <p className="text-sm font-semibold text-gray-900 mt-1">Harvest prepared for the market</p>
+                </div>
+              </div>
+
+              <div className="absolute left-8 right-0 bottom-0 rounded-2xl overflow-hidden border border-green-100 bg-white shadow-xl rotate-[1.8deg] transition hover:rotate-0">
+                <img
+                  src={homeImage04}
+                  alt="Farm market activity and produce variety"
+                  className="h-48 md:h-56 w-full object-cover"
+                />
+                <div className="px-4 py-3 bg-white">
+                  <p className="text-xs uppercase tracking-[0.12em] text-green-700">Market pulse</p>
+                  <p className="text-sm font-semibold text-gray-900 mt-1">Price movement and trading energy</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FEEDBACK */}
       <section className="bg-gradient-to-b from-green-50 to-white py-14">
         <div className="max-w-7xl mx-auto px-6">
