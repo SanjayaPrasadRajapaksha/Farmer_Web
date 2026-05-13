@@ -110,7 +110,7 @@ function Home() {
       email,
       address,
       phone,
-      role_id: 2,
+      role_id: 3,
     };
 
     setIsSubmitting(true);
